@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/api/client.ts","./src/pages/discoverypage.tsx","./src/types/discovery.ts","./src/ui/discoverylayout.tsx","./src/ui/discoverytoolbar.tsx","./src/ui/eventlistpanel.tsx","./src/ui/eventmapplaceholder.tsx"],"version":"5.9.3"}
