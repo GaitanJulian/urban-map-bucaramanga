@@ -360,6 +360,137 @@ button {
   background: linear-gradient(180deg, rgba(252, 249, 248, 0.98), rgba(247, 248, 250, 0.95));
 }
 
+.discovery-map-panel__surface {
+  padding: 0;
+}
+
+.discovery-map-panel__map {
+  width: 100%;
+  height: 100%;
+}
+
+.discovery-map-panel .leaflet-container {
+  width: 100%;
+  height: 100%;
+  font: inherit;
+  background: #edf2e8;
+}
+
+.discovery-map-panel .leaflet-control-zoom {
+  border: 0;
+  box-shadow: var(--shadow-md);
+}
+
+.discovery-map-panel .leaflet-control-zoom a {
+  width: 42px;
+  height: 42px;
+  border: 0;
+  color: var(--text-primary);
+}
+
+.discovery-map-panel .leaflet-control-zoom.leaflet-bar {
+  box-shadow: none;
+}
+
+.discovery-map-panel .leaflet-top.leaflet-left {
+  top: auto;
+  left: auto;
+  right: 18px;
+  bottom: 18px;
+}
+
+.discovery-map-panel .leaflet-bottom.leaflet-right {
+  right: auto;
+  left: 18px;
+  bottom: 14px;
+}
+
+.discovery-map-panel .leaflet-control-attribution {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.discovery-map-marker-wrapper {
+  background: transparent;
+  border: 0;
+}
+
+.discovery-map-marker {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 58px;
+  transform-origin: center bottom;
+}
+
+.discovery-map-marker__halo {
+  position: absolute;
+  inset: 3px 6px 14px;
+  border-radius: 18px 18px 22px 22px;
+  background: var(--marker-accent, var(--brand));
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.14);
+  clip-path: polygon(50% 100%, 0 42%, 14% 15%, 36% 0, 64% 0, 86% 15%, 100% 42%);
+  opacity: 0.16;
+}
+
+.discovery-map-marker__core {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-top: 3px;
+  border-radius: 999px;
+  background: var(--marker-accent, var(--brand));
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18);
+}
+
+.discovery-map-marker.is-approximate .discovery-map-marker__core {
+  background: linear-gradient(135deg, #ff8b35 0%, #ff5a1f 100%);
+}
+
+.discovery-map-marker.is-approximate .discovery-map-marker__halo {
+  opacity: 0.24;
+}
+
+.discovery-map-marker.is-approximate::after {
+  content: "";
+  position: absolute;
+  inset: 1px 5px 13px;
+  border: 2px dashed rgba(255, 90, 31, 0.45);
+  border-radius: 18px 18px 22px 22px;
+  clip-path: polygon(50% 100%, 0 42%, 14% 15%, 36% 0, 64% 0, 86% 15%, 100% 42%);
+}
+
+.discovery-map-marker.is-selected {
+  transform: translateY(-2px) scale(1.08);
+}
+
+.discovery-map-marker.is-selected .discovery-map-marker__core {
+  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.82), 0 14px 22px rgba(0, 0, 0, 0.2);
+}
+
+.discovery-map-popup .leaflet-popup-content-wrapper {
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+}
+
+.discovery-map-popup__content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  min-width: 140px;
+}
+
 .map-panel__surface {
   position: relative;
   flex: 1;
@@ -566,6 +697,11 @@ button {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
   border-color: rgba(174, 50, 0, 0.18);
+}
+
+.event-card.is-selected {
+  border-color: rgba(255, 90, 31, 0.38);
+  box-shadow: 0 12px 30px rgba(255, 90, 31, 0.14);
 }
 
 .event-card__media {

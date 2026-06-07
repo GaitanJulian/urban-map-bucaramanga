@@ -77,6 +77,7 @@ export function DiscoveryPage() {
     const [status, setStatus] = useState("loading");
     const [errorMessage, setErrorMessage] = useState(null);
     const [view, setView] = useState("list");
+    const [selectedEventId, setSelectedEventId] = useState(null);
     const [filters, setFilters] = useState(DEFAULT_FILTERS);
     const [draftSearch, setDraftSearch] = useState(DEFAULT_FILTERS.q);
     const [reloadToken, setReloadToken] = useState(0);
@@ -96,6 +97,15 @@ export function DiscoveryPage() {
         accumulator[option.value] = option.label;
         return accumulator;
     }, {}), []);
+    useEffect(() => {
+        if (selectedEventId === null) {
+            return;
+        }
+        const stillVisible = events.some((event) => event.id === selectedEventId);
+        if (!stillVisible) {
+            setSelectedEventId(null);
+        }
+    }, [events, selectedEventId]);
     const patchFilters = (patch) => {
         if (Object.prototype.hasOwnProperty.call(patch, "q")) {
             const nextQuery = typeof patch.q === "string" ? patch.q : "";
@@ -150,6 +160,6 @@ export function DiscoveryPage() {
     return (_jsxs("main", { className: "discovery-shell", children: [_jsx(DiscoveryToolbar, {}), _jsxs("section", { className: "discovery-shell__controls", children: [_jsxs("div", { className: "discovery-shell__controls-row discovery-shell__controls-row--primary", children: [_jsx(DiscoverySearchBar, { value: draftSearch, onChange: setDraftSearch, onClear: () => {
                                     setDraftSearch("");
                                     patchFilters({ q: "" });
-                                } }), _jsx(ViewToggle, { value: view, onChange: setView })] }), _jsx(ActiveFilterChips, { filters: filters, categoryLabels: categoryLabels, zoneLabels: zoneLabels, onPatch: patchFilters, onClearAll: clearAllFilters }), _jsx(DiscoveryFilterBar, { filters: filters, categoryOptions: CATEGORY_OPTIONS, zoneOptions: ZONE_OPTIONS, onPatch: patchFilters })] }), _jsx(DiscoveryLayout, { events: events, pagination: pagination, appliedFilters: appliedFilters, status: status, errorMessage: errorMessage, onRetry: () => setReloadToken((value) => value + 1), view: view })] }));
+                                } }), _jsx(ViewToggle, { value: view, onChange: setView })] }), _jsx(ActiveFilterChips, { filters: filters, categoryLabels: categoryLabels, zoneLabels: zoneLabels, onPatch: patchFilters, onClearAll: clearAllFilters }), _jsx(DiscoveryFilterBar, { filters: filters, categoryOptions: CATEGORY_OPTIONS, zoneOptions: ZONE_OPTIONS, onPatch: patchFilters })] }), _jsx(DiscoveryLayout, { events: events, pagination: pagination, appliedFilters: appliedFilters, status: status, errorMessage: errorMessage, onRetry: () => setReloadToken((value) => value + 1), view: view, selectedEventId: selectedEventId, onSelectEvent: setSelectedEventId })] }));
 }
 //# sourceMappingURL=DiscoveryPage.js.map

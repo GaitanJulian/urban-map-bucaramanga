@@ -3,6 +3,7 @@ import type { PublicEvent } from "../types/discovery";
 
 interface EventCardProps {
   event: PublicEvent;
+  isSelected?: boolean;
 }
 
 function formatSchedule(startsAt: string, endsAt: string): string {
@@ -56,12 +57,12 @@ function getStatusClass(status: PublicEvent["status"]): string {
   return status === "live" ? "badge badge--live" : "badge badge--upcoming";
 }
 
-export function EventCard({ event }: EventCardProps) {
+export function EventCard({ event, isSelected = false }: EventCardProps) {
   const accent = getAccent(event.category.id);
   const approximate = event.isApproximateLocation || event.location.isApproximateLocation;
 
   return (
-    <article className="event-card" aria-label={event.title}>
+    <article className={isSelected ? "event-card is-selected" : "event-card"} aria-label={event.title}>
       <div className="event-card__media" style={{ "--card-accent": accent } as CSSProperties}>
         <div className="event-card__media-overlay" />
         <div className="event-card__media-icon" aria-hidden="true">
@@ -102,4 +103,3 @@ export function EventCard({ event }: EventCardProps) {
     </article>
   );
 }
-

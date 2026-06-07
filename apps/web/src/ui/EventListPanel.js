@@ -4,7 +4,7 @@ import { ErrorState } from "./ErrorState";
 import { EventCard } from "./EventCard";
 import { LoadingState } from "./LoadingState";
 import { ResultSummary } from "./ResultSummary";
-export function EventListPanel({ events, pagination, appliedFilters, status, errorMessage, onRetry }) {
+export function EventListPanel({ events, pagination, appliedFilters, status, errorMessage, onRetry, selectedEventId }) {
     if (status === "loading") {
         return _jsx(LoadingState, {});
     }
@@ -14,6 +14,6 @@ export function EventListPanel({ events, pagination, appliedFilters, status, err
     if (status === "empty") {
         return (_jsxs("div", { className: "event-list-panel", children: [_jsx(ResultSummary, { totalItems: pagination?.totalItems ?? 0 }), _jsx(EmptyState, {})] }));
     }
-    return (_jsxs("section", { className: "event-list-panel", "aria-label": "Resultados de eventos", children: [_jsx(ResultSummary, { totalItems: pagination?.totalItems ?? events.length }), appliedFilters ? (_jsxs("div", { className: "event-list-panel__context", "aria-hidden": "true", children: [_jsx("span", { className: "event-list-panel__context-label", children: appliedFilters.scope }), _jsx("span", { className: "event-list-panel__context-pill", children: appliedFilters.visibilityState })] })) : null, _jsx("div", { className: "event-list-panel__items", children: events.map((event) => (_jsx(EventCard, { event: event }, event.id))) })] }));
+    return (_jsxs("section", { className: "event-list-panel", "aria-label": "Resultados de eventos", children: [_jsx(ResultSummary, { totalItems: pagination?.totalItems ?? events.length }), appliedFilters ? (_jsxs("div", { className: "event-list-panel__context", "aria-hidden": "true", children: [_jsx("span", { className: "event-list-panel__context-label", children: appliedFilters.scope }), _jsx("span", { className: "event-list-panel__context-pill", children: appliedFilters.visibilityState })] })) : null, _jsx("div", { className: "event-list-panel__items", children: events.map((event) => (_jsx(EventCard, { event: event, isSelected: event.id === selectedEventId }, event.id))) })] }));
 }
 //# sourceMappingURL=EventListPanel.js.map

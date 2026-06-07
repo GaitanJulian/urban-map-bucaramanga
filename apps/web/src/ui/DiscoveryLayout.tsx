@@ -1,7 +1,7 @@
 import React from "react";
 
 import { EventListPanel } from "./EventListPanel";
-import { EventMapPlaceholder } from "./EventMapPlaceholder";
+import { DiscoveryMapPanel } from "./DiscoveryMapPanel";
 import type {
   AppliedFilters,
   DiscoveryStatus,
@@ -18,6 +18,8 @@ interface DiscoveryLayoutProps {
   errorMessage: string | null;
   onRetry: () => void;
   view: DiscoveryView;
+  selectedEventId: string | null;
+  onSelectEvent: (eventId: string | null) => void;
 }
 
 export function DiscoveryLayout({
@@ -27,10 +29,13 @@ export function DiscoveryLayout({
   status,
   errorMessage,
   onRetry,
-  view
+  view,
+  selectedEventId,
+  onSelectEvent
 }: DiscoveryLayoutProps) {
   const totalVisibleEvents = pagination?.totalItems ?? events.length;
   const stateClass = `is-${status}`;
+  const isMapVisible = status !== "success" || view === "map";
 
   return (
     <section
@@ -39,9 +44,16 @@ export function DiscoveryLayout({
           ? `discovery-shell__content is-map-active ${stateClass}`
           : `discovery-shell__content is-list-active ${stateClass}`
       }
-    >
+      >
       <div className="discovery-shell__map">
-        <EventMapPlaceholder eventCount={totalVisibleEvents} />
+        <DiscoveryMapPanel
+          events={events}
+          eventCount={totalVisibleEvents}
+          status={status}
+          isVisible={isMapVisible}
+          selectedEventId={selectedEventId}
+          onSelectEvent={onSelectEvent}
+        />
       </div>
 
       <div className="discovery-shell__list">
@@ -52,6 +64,7 @@ export function DiscoveryLayout({
           status={status}
           errorMessage={errorMessage}
           onRetry={onRetry}
+          selectedEventId={selectedEventId}
         />
       </div>
     </section>

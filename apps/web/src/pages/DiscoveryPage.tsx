@@ -100,6 +100,7 @@ export function DiscoveryPage() {
   const [status, setStatus] = useState<DiscoveryStatus>("loading");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [view, setView] = useState<DiscoveryView>("list");
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [filters, setFilters] = useState<DiscoveryFiltersState>(DEFAULT_FILTERS);
   const [draftSearch, setDraftSearch] = useState(DEFAULT_FILTERS.q);
   const [reloadToken, setReloadToken] = useState(0);
@@ -130,6 +131,18 @@ export function DiscoveryPage() {
       }, {}),
     []
   );
+
+  useEffect(() => {
+    if (selectedEventId === null) {
+      return;
+    }
+
+    const stillVisible = events.some((event) => event.id === selectedEventId);
+
+    if (!stillVisible) {
+      setSelectedEventId(null);
+    }
+  }, [events, selectedEventId]);
 
   const patchFilters = (patch: Partial<DiscoveryFiltersState>) => {
     if (Object.prototype.hasOwnProperty.call(patch, "q")) {
@@ -237,6 +250,8 @@ export function DiscoveryPage() {
         errorMessage={errorMessage}
         onRetry={() => setReloadToken((value) => value + 1)}
         view={view}
+        selectedEventId={selectedEventId}
+        onSelectEvent={setSelectedEventId}
       />
     </main>
   );

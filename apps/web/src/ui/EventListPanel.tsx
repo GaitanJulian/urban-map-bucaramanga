@@ -19,6 +19,7 @@ interface EventListPanelProps {
   status: DiscoveryStatus;
   errorMessage: string | null;
   onRetry: () => void;
+  selectedEventId: string | null;
 }
 
 export function EventListPanel({
@@ -27,7 +28,8 @@ export function EventListPanel({
   appliedFilters,
   status,
   errorMessage,
-  onRetry
+  onRetry,
+  selectedEventId
 }: EventListPanelProps) {
   if (status === "loading") {
     return <LoadingState />;
@@ -63,10 +65,9 @@ export function EventListPanel({
 
       <div className="event-list-panel__items">
         {events.map((event) => (
-          <EventCard key={event.id} event={event} />
+          <EventCard key={event.id} event={event} isSelected={event.id === selectedEventId} />
         ))}
       </div>
     </section>
   );
 }
-
