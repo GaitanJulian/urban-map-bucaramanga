@@ -29,15 +29,23 @@
 html,
 body,
 #root {
+  width: 100%;
+  height: 100%;
   min-height: 100%;
   margin: 0;
 }
 
 body {
-  min-height: 100vh;
+  min-height: 100%;
   background:
     radial-gradient(circle at top, rgba(255, 90, 31, 0.04), transparent 28%),
     linear-gradient(180deg, #fffdfc 0%, #f7f8fa 100%);
+  overflow: hidden;
+}
+
+body,
+#root {
+  overscroll-behavior: none;
 }
 
 button,
@@ -50,7 +58,11 @@ button {
 }
 
 .discovery-shell {
-  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
 }
 
 .discovery-toolbar {
@@ -121,8 +133,7 @@ button {
 }
 
 .discovery-shell__controls {
-  position: sticky;
-  top: 82px;
+  position: relative;
   z-index: 15;
   display: flex;
   flex-direction: column;
@@ -131,6 +142,7 @@ button {
   background: rgba(252, 249, 248, 0.92);
   backdrop-filter: blur(14px);
   border-bottom: 1px solid rgba(229, 226, 225, 0.7);
+  flex: 0 0 auto;
 }
 
 .discovery-shell__controls-row {
@@ -337,31 +349,36 @@ button {
 }
 
 .discovery-shell__content {
+  flex: 1 1 auto;
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
   gap: 0;
-  min-height: calc(100vh - 82px - 168px);
+  min-height: 0;
+  overflow: hidden;
 }
 
 .discovery-shell__map {
-  min-height: calc(100vh - 82px - 168px);
+  min-height: 0;
   border-right: 1px solid rgba(229, 226, 225, 0.8);
 }
 
 .discovery-shell__list {
   min-width: 0;
+  min-height: 0;
 }
 
 .map-panel {
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: calc(100vh - 82px - 168px);
+  min-height: 0;
   background: linear-gradient(180deg, rgba(252, 249, 248, 0.98), rgba(247, 248, 250, 0.95));
 }
 
 .discovery-map-panel__surface {
+  flex: 1 1 auto;
   padding: 0;
+  min-height: 0;
 }
 
 .discovery-map-panel__map {
@@ -625,9 +642,10 @@ button {
   flex-direction: column;
   gap: 16px;
   height: 100%;
-  min-height: calc(100vh - 82px - 168px);
+  min-height: 0;
   padding: 28px 24px 32px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(247, 248, 250, 0.92));
+  overflow: hidden;
 }
 
 .result-summary {
@@ -676,9 +694,13 @@ button {
 }
 
 .event-list-panel__items {
+  flex: 1 1 auto;
+  min-height: 0;
   display: grid;
   gap: 20px;
-  overflow: visible;
+  overflow: auto;
+  padding-right: 8px;
+  scrollbar-gutter: stable;
 }
 
 .event-card {
@@ -1297,12 +1319,9 @@ button {
 }
 
 @media (max-width: 1199px) {
-  .discovery-shell__controls {
-    top: 82px;
-  }
-
   .discovery-shell__content {
     grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
   }
 
   .discovery-shell__map {
@@ -1345,8 +1364,9 @@ button {
   }
 
   .discovery-shell__controls {
-    top: 76px;
     padding: 14px 16px 16px;
+    max-height: min(42dvh, 318px);
+    overflow: auto;
   }
 
   .search-bar {
@@ -1380,6 +1400,10 @@ button {
 
   .discovery-shell__map {
     min-height: 320px;
+  }
+
+  .discovery-shell__content {
+    grid-template-rows: auto minmax(0, 1fr);
   }
 
   .result-summary {
