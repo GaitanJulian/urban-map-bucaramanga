@@ -25,11 +25,35 @@ export class AppliedFiltersDto {
   @ApiProperty({ example: ["upcoming", "live"], isArray: true })
   lifecycle!: string[];
 
-  @ApiProperty({ required: false, example: "music" })
+  @ApiProperty({ required: false, example: "cat_music" })
   categoryId?: string;
 
-  @ApiProperty({ required: false, example: "cabecera" })
+  @ApiProperty({ required: false, example: "zone_cabecera" })
   zoneId?: string;
+
+  @ApiProperty({ required: false, example: "2026-06-01" })
+  dateFrom?: string;
+
+  @ApiProperty({ required: false, example: "2026-06-30" })
+  dateTo?: string;
+
+  @ApiProperty({ required: false, example: true })
+  isFree?: boolean;
+
+  @ApiProperty({ required: false, example: "Gratis" })
+  cost?: string;
+
+  @ApiProperty({ required: false, example: 7.119349 })
+  nearLat?: number;
+
+  @ApiProperty({ required: false, example: -73.122742 })
+  nearLng?: number;
+
+  @ApiProperty({ required: false, example: 3 })
+  radiusKm?: number;
+
+  @ApiProperty({ required: false, example: "distance" })
+  sort?: string;
 }
 
 export class PublicEventListResponseDto {

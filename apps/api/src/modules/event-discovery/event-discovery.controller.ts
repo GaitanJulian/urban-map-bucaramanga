@@ -1,5 +1,5 @@
 import { Controller, Get, Query } from "@nestjs/common";
-import { ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { EventDiscoveryService } from "./event-discovery.service.js";
 import { ListEventsQueryDto } from "./dto/list-events.query.dto.js";
 import { PublicEventListResponseDto } from "./dto/public-event-list-response.dto.js";
@@ -14,8 +14,11 @@ export class EventDiscoveryController {
     description: "Visible events for discovery",
     type: PublicEventListResponseDto
   })
+  @ApiBadRequestResponse({
+    description: "Invalid filter combination or malformed date/proximity parameters"
+  })
   @Get()
-  async list(@Query() query: ListEventsQueryDto) {
+  async list(@Query() query: ListEventsQueryDto): Promise<PublicEventListResponseDto> {
     return this.eventDiscoveryService.listVisibleEvents(query);
   }
 }
