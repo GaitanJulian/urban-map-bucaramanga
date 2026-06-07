@@ -43,8 +43,8 @@ function getMarkerAccent(categoryId: string): string {
 }
 
 function formatMarkerLabel(event: PublicEvent): string {
-  const title = event.category.name.trim();
-  return escapeHtml(title.slice(0, 1).toUpperCase() || "•");
+  const label = event.category.name.trim();
+  return escapeHtml(label.slice(0, 1).toUpperCase() || "E");
 }
 
 function buildMarkerIcon(event: PublicEvent, isSelected: boolean): DivIcon {

@@ -104,6 +104,10 @@ export function DiscoveryPage() {
   const [filters, setFilters] = useState<DiscoveryFiltersState>(DEFAULT_FILTERS);
   const [draftSearch, setDraftSearch] = useState(DEFAULT_FILTERS.q);
   const [reloadToken, setReloadToken] = useState(0);
+  const selectedEvent = useMemo(
+    () => events.find((event) => event.id === selectedEventId) ?? null,
+    [events, selectedEventId]
+  );
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -251,6 +255,7 @@ export function DiscoveryPage() {
         onRetry={() => setReloadToken((value) => value + 1)}
         view={view}
         selectedEventId={selectedEventId}
+        selectedEvent={selectedEvent}
         onSelectEvent={setSelectedEventId}
       />
     </main>

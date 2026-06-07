@@ -4,6 +4,7 @@ import type { PublicEvent } from "../types/discovery";
 interface EventCardProps {
   event: PublicEvent;
   isSelected?: boolean;
+  onSelect?: () => void;
 }
 
 function formatSchedule(startsAt: string, endsAt: string): string {
@@ -57,12 +58,26 @@ function getStatusClass(status: PublicEvent["status"]): string {
   return status === "live" ? "badge badge--live" : "badge badge--upcoming";
 }
 
-export function EventCard({ event, isSelected = false }: EventCardProps) {
+export function EventCard({ event, isSelected = false, onSelect }: EventCardProps) {
   const accent = getAccent(event.category.id);
   const approximate = event.isApproximateLocation || event.location.isApproximateLocation;
 
+  const handleKeyDown = (keyboardEvent: React.KeyboardEvent<HTMLElement>) => {
+    if (keyboardEvent.key === "Enter" || keyboardEvent.key === " ") {
+      keyboardEvent.preventDefault();
+      onSelect?.();
+    }
+  };
+
   return (
-    <article className={isSelected ? "event-card is-selected" : "event-card"} aria-label={event.title}>
+    <article
+      className={isSelected ? "event-card is-selected" : "event-card"}
+      aria-label={event.title}
+      role={onSelect ? "button" : undefined}
+      tabIndex={onSelect ? 0 : undefined}
+      onClick={onSelect}
+      onKeyDown={handleKeyDown}
+    >
       <div className="event-card__media" style={{ "--card-accent": accent } as CSSProperties}>
         <div className="event-card__media-overlay" />
         <div className="event-card__media-icon" aria-hidden="true">

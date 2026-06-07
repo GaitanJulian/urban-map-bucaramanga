@@ -2,6 +2,7 @@ import React from "react";
 
 import { EventListPanel } from "./EventListPanel";
 import { DiscoveryMapPanel } from "./DiscoveryMapPanel";
+import { EventDetailPanel } from "./EventDetailPanel";
 import type {
   AppliedFilters,
   DiscoveryStatus,
@@ -19,6 +20,7 @@ interface DiscoveryLayoutProps {
   onRetry: () => void;
   view: DiscoveryView;
   selectedEventId: string | null;
+  selectedEvent: PublicEvent | null;
   onSelectEvent: (eventId: string | null) => void;
 }
 
@@ -31,6 +33,7 @@ export function DiscoveryLayout({
   onRetry,
   view,
   selectedEventId,
+  selectedEvent,
   onSelectEvent
 }: DiscoveryLayoutProps) {
   const totalVisibleEvents = pagination?.totalItems ?? events.length;
@@ -65,8 +68,13 @@ export function DiscoveryLayout({
           errorMessage={errorMessage}
           onRetry={onRetry}
           selectedEventId={selectedEventId}
+          onSelectEvent={onSelectEvent}
         />
       </div>
+
+      {selectedEvent ? (
+        <EventDetailPanel event={selectedEvent} onClose={() => onSelectEvent(null)} />
+      ) : null}
     </section>
   );
 }

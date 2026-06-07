@@ -20,6 +20,7 @@ interface EventListPanelProps {
   errorMessage: string | null;
   onRetry: () => void;
   selectedEventId: string | null;
+  onSelectEvent: (eventId: string | null) => void;
 }
 
 export function EventListPanel({
@@ -29,7 +30,8 @@ export function EventListPanel({
   status,
   errorMessage,
   onRetry,
-  selectedEventId
+  selectedEventId,
+  onSelectEvent
 }: EventListPanelProps) {
   if (status === "loading") {
     return <LoadingState />;
@@ -65,7 +67,12 @@ export function EventListPanel({
 
       <div className="event-list-panel__items">
         {events.map((event) => (
-          <EventCard key={event.id} event={event} isSelected={event.id === selectedEventId} />
+          <EventCard
+            key={event.id}
+            event={event}
+            isSelected={event.id === selectedEventId}
+            onSelect={() => onSelectEvent(event.id)}
+          />
         ))}
       </div>
     </section>

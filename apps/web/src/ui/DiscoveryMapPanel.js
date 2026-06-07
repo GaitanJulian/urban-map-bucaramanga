@@ -26,8 +26,8 @@ function getMarkerAccent(categoryId) {
     return "#7b5d50";
 }
 function formatMarkerLabel(event) {
-    const title = event.category.name.trim();
-    return escapeHtml(title.slice(0, 1).toUpperCase() || "•");
+    const label = event.category.name.trim();
+    return escapeHtml(label.slice(0, 1).toUpperCase() || "E");
 }
 function buildMarkerIcon(event, isSelected) {
     const accent = getMarkerAccent(event.category.id);

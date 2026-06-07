@@ -81,6 +81,7 @@ export function DiscoveryPage() {
     const [filters, setFilters] = useState(DEFAULT_FILTERS);
     const [draftSearch, setDraftSearch] = useState(DEFAULT_FILTERS.q);
     const [reloadToken, setReloadToken] = useState(0);
+    const selectedEvent = useMemo(() => events.find((event) => event.id === selectedEventId) ?? null, [events, selectedEventId]);
     useEffect(() => {
         const timeoutId = window.setTimeout(() => {
             setFilters((current) => (current.q === draftSearch.trim() ? current : { ...current, q: draftSearch.trim() }));
@@ -160,6 +161,6 @@ export function DiscoveryPage() {
     return (_jsxs("main", { className: "discovery-shell", children: [_jsx(DiscoveryToolbar, {}), _jsxs("section", { className: "discovery-shell__controls", children: [_jsxs("div", { className: "discovery-shell__controls-row discovery-shell__controls-row--primary", children: [_jsx(DiscoverySearchBar, { value: draftSearch, onChange: setDraftSearch, onClear: () => {
                                     setDraftSearch("");
                                     patchFilters({ q: "" });
-                                } }), _jsx(ViewToggle, { value: view, onChange: setView })] }), _jsx(ActiveFilterChips, { filters: filters, categoryLabels: categoryLabels, zoneLabels: zoneLabels, onPatch: patchFilters, onClearAll: clearAllFilters }), _jsx(DiscoveryFilterBar, { filters: filters, categoryOptions: CATEGORY_OPTIONS, zoneOptions: ZONE_OPTIONS, onPatch: patchFilters })] }), _jsx(DiscoveryLayout, { events: events, pagination: pagination, appliedFilters: appliedFilters, status: status, errorMessage: errorMessage, onRetry: () => setReloadToken((value) => value + 1), view: view, selectedEventId: selectedEventId, onSelectEvent: setSelectedEventId })] }));
+                                } }), _jsx(ViewToggle, { value: view, onChange: setView })] }), _jsx(ActiveFilterChips, { filters: filters, categoryLabels: categoryLabels, zoneLabels: zoneLabels, onPatch: patchFilters, onClearAll: clearAllFilters }), _jsx(DiscoveryFilterBar, { filters: filters, categoryOptions: CATEGORY_OPTIONS, zoneOptions: ZONE_OPTIONS, onPatch: patchFilters })] }), _jsx(DiscoveryLayout, { events: events, pagination: pagination, appliedFilters: appliedFilters, status: status, errorMessage: errorMessage, onRetry: () => setReloadToken((value) => value + 1), view: view, selectedEventId: selectedEventId, selectedEvent: selectedEvent, onSelectEvent: setSelectedEventId })] }));
 }
 //# sourceMappingURL=DiscoveryPage.js.map
