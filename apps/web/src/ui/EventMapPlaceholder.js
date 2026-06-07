@@ -1,5 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-export function EventMapPlaceholder() {
-    return (_jsxs("section", { style: { minHeight: 320, border: "1px solid #d1d5db", borderRadius: 12, background: "#ffffff", padding: 16 }, children: [_jsx("h2", { style: { marginTop: 0 }, children: "Mapa" }), _jsx("p", { children: "Placeholder del contenedor de mapa Leaflet para el Release 1." })] }));
+export function EventMapPlaceholder({ eventCount }) {
+    return (_jsxs("section", { className: "map-panel", "aria-label": "Mapa de eventos de Bucaramanga", children: [_jsxs("div", { className: "map-panel__surface", "aria-hidden": "true", children: [_jsx("div", { className: "map-panel__road map-panel__road--one" }), _jsx("div", { className: "map-panel__road map-panel__road--two" }), _jsx("div", { className: "map-panel__road map-panel__road--three" }), _jsx("div", { className: "map-panel__marker map-panel__marker--active", children: _jsx("span", { children: "\u266A" }) }), _jsx("div", { className: "map-panel__marker map-panel__marker--secondary", children: _jsx("span", { children: "\u2302" }) }), _jsx("div", { className: "map-panel__marker map-panel__marker--approximate", children: _jsx("span", { children: "\u2630" }) })] }), _jsxs("div", { className: "map-panel__footer", children: [_jsx("p", { className: "map-panel__title", children: "Mapa de Bucaramanga" }), _jsxs("p", { className: "map-panel__subtitle", children: [eventCount, " eventos visibles en este universo"] })] })] }));
 }
 //# sourceMappingURL=EventMapPlaceholder.js.map
