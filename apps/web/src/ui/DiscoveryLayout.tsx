@@ -1,11 +1,11 @@
 import React from "react";
 
-import { DiscoveryToolbar } from "./DiscoveryToolbar";
 import { EventListPanel } from "./EventListPanel";
 import { EventMapPlaceholder } from "./EventMapPlaceholder";
 import type {
   AppliedFilters,
   DiscoveryStatus,
+  DiscoveryView,
   PublicEvent,
   PublicEventPagination
 } from "../types/discovery";
@@ -17,6 +17,7 @@ interface DiscoveryLayoutProps {
   status: DiscoveryStatus;
   errorMessage: string | null;
   onRetry: () => void;
+  view: DiscoveryView;
 }
 
 export function DiscoveryLayout({
@@ -25,30 +26,34 @@ export function DiscoveryLayout({
   appliedFilters,
   status,
   errorMessage,
-  onRetry
+  onRetry,
+  view
 }: DiscoveryLayoutProps) {
   const totalVisibleEvents = pagination?.totalItems ?? events.length;
+  const stateClass = `is-${status}`;
 
   return (
-    <main className="discovery-shell">
-      <DiscoveryToolbar />
+    <section
+      className={
+        view === "map"
+          ? `discovery-shell__content is-map-active ${stateClass}`
+          : `discovery-shell__content is-list-active ${stateClass}`
+      }
+    >
+      <div className="discovery-shell__map">
+        <EventMapPlaceholder eventCount={totalVisibleEvents} />
+      </div>
 
-      <section className="discovery-shell__content">
-        <div className="discovery-shell__map">
-          <EventMapPlaceholder eventCount={totalVisibleEvents} />
-        </div>
-
-        <div className="discovery-shell__list">
-          <EventListPanel
-            events={events}
-            pagination={pagination}
-            appliedFilters={appliedFilters}
-            status={status}
-            errorMessage={errorMessage}
-            onRetry={onRetry}
-          />
-        </div>
-      </section>
-    </main>
+      <div className="discovery-shell__list">
+        <EventListPanel
+          events={events}
+          pagination={pagination}
+          appliedFilters={appliedFilters}
+          status={status}
+          errorMessage={errorMessage}
+          onRetry={onRetry}
+        />
+      </div>
+    </section>
   );
 }

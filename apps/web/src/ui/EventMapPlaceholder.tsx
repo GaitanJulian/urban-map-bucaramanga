@@ -29,3 +29,4 @@ export function EventMapPlaceholder({ eventCount }: EventMapPlaceholderProps) {
     </section>
   );
 }
+

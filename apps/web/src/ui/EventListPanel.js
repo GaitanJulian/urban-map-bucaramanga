@@ -9,7 +9,7 @@ export function EventListPanel({ events, pagination, appliedFilters, status, err
         return _jsx(LoadingState, {});
     }
     if (status === "error") {
-        return (_jsx("div", { className: "event-list-panel", children: _jsx(ErrorState, { message: errorMessage ?? "Hubo un problema de conexión con el servidor.", onRetry: onRetry }) }));
+        return (_jsx("div", { className: "event-list-panel", children: _jsx(ErrorState, { message: errorMessage ?? "Hubo un problema de conexion con el servidor.", onRetry: onRetry }) }));
     }
     if (status === "empty") {
         return (_jsxs("div", { className: "event-list-panel", children: [_jsx(ResultSummary, { totalItems: pagination?.totalItems ?? 0 }), _jsx(EmptyState, {})] }));

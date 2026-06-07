@@ -1,9 +1,10 @@
 export type DiscoveryView = "map" | "list";
+export type DiscoveryStatus = "loading" | "success" | "empty" | "error";
+export type DiscoveryFreeFilter = "all" | "free" | "paid";
 
 export type EventStatus = "upcoming" | "live" | "ended" | "cancelled";
 export type VisibilityState = "visible" | "hidden";
 export type LocationPrecision = "exact" | "street" | "neighborhood" | "zone" | "approximate";
-export type DiscoveryStatus = "loading" | "success" | "empty" | "error";
 
 export interface EventCategory {
   id: string;
@@ -88,3 +89,21 @@ export interface EventDiscoveryQuery {
   sort?: string;
 }
 
+export interface DiscoveryFiltersState {
+  q: string;
+  dateFrom: string;
+  dateTo: string;
+  isFree: DiscoveryFreeFilter;
+  cost: string;
+  categoryId: string;
+  zoneId: string;
+  useProximity: boolean;
+  nearLat: string;
+  nearLng: string;
+  radiusKm: string;
+}
+
+export interface DiscoverySelectOption {
+  value: string;
+  label: string;
+}

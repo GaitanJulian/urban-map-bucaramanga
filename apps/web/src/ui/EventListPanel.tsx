@@ -36,7 +36,7 @@ export function EventListPanel({
   if (status === "error") {
     return (
       <div className="event-list-panel">
-        <ErrorState message={errorMessage ?? "Hubo un problema de conexión con el servidor."} onRetry={onRetry} />
+        <ErrorState message={errorMessage ?? "Hubo un problema de conexion con el servidor."} onRetry={onRetry} />
       </div>
     );
   }
@@ -69,3 +69,4 @@ export function EventListPanel({
     </section>
   );
 }
+
