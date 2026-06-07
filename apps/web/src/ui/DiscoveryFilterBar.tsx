@@ -60,7 +60,7 @@ export function DiscoveryFilterBar({
 
       <div className="filter-bar__row">
         <label className="filter-field">
-          <span>Categoria</span>
+          <span>Categoría</span>
           <select value={filters.categoryId} onChange={(event) => onPatch({ categoryId: event.target.value })}>
             <option value="">Todas</option>
             {categoryOptions.map((option) => (

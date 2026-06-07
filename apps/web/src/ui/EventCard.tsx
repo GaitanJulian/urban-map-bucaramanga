@@ -73,6 +73,7 @@ export function EventCard({ event, isSelected = false, onSelect }: EventCardProp
     <article
       className={isSelected ? "event-card is-selected" : "event-card"}
       aria-label={event.title}
+      aria-current={isSelected ? "true" : undefined}
       role={onSelect ? "button" : undefined}
       tabIndex={onSelect ? 0 : undefined}
       onClick={onSelect}

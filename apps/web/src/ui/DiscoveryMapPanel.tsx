@@ -170,6 +170,15 @@ export function DiscoveryMapPanel({
             );
           })}
         </MapContainer>
+
+        {status === "loading" ? (
+          <div className="discovery-map-panel__loading" aria-hidden="true">
+            <div className="discovery-map-panel__loading-orbit" />
+            <div className="discovery-map-panel__loading-marker discovery-map-panel__loading-marker--one" />
+            <div className="discovery-map-panel__loading-marker discovery-map-panel__loading-marker--two" />
+            <div className="discovery-map-panel__loading-marker discovery-map-panel__loading-marker--three" />
+          </div>
+        ) : null}
       </div>
 
       <div className="map-panel__footer">

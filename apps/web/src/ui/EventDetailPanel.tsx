@@ -52,13 +52,20 @@ export function EventDetailPanel({ event, onClose }: EventDetailPanelProps) {
 
   return (
     <aside className="event-detail-panel" aria-label={`Detalle de ${event.title}`}>
-      <div className="event-detail-panel__backdrop" onClick={onClose} aria-hidden="true" />
+      <button
+        type="button"
+        className="event-detail-panel__backdrop"
+        onClick={onClose}
+        aria-label="Cerrar detalle"
+      />
 
-      <section className="event-detail-panel__sheet" role="dialog" aria-modal="false">
+      <section className="event-detail-panel__sheet" role="dialog" aria-modal="false" aria-labelledby="event-detail-title">
         <div className="event-detail-panel__header">
           <div>
             <span className="event-detail-panel__eyebrow">{event.category.name}</span>
-            <h2 className="event-detail-panel__title">{event.title}</h2>
+            <h2 className="event-detail-panel__title" id="event-detail-title">
+              {event.title}
+            </h2>
           </div>
 
           <button type="button" className="event-detail-panel__close" onClick={onClose} aria-label="Cerrar detalle">
@@ -66,12 +73,18 @@ export function EventDetailPanel({ event, onClose }: EventDetailPanelProps) {
           </button>
         </div>
 
+        <div className="event-detail-panel__hero">
+          <div className="event-detail-panel__badge-stack">
+            <span className="badge badge--upcoming">{getStatusLabel(event.status)}</span>
+            <span className={event.isFree ? "badge badge--free" : "badge badge--cost"}>
+              {event.isFree ? "Gratis" : event.costLabel}
+            </span>
+          </div>
+        </div>
+
         <div className="event-detail-panel__meta">
-          <span className="badge badge--upcoming">{getStatusLabel(event.status)}</span>
-          <span className={event.isFree ? "badge badge--free" : "badge badge--cost"}>
-            {event.isFree ? "Gratis" : event.costLabel}
-          </span>
           <span className="chip chip--zone">{event.zone.name}</span>
+          {approximate ? <span className="chip chip--approximate">Ubicacion aproximada</span> : null}
         </div>
 
         <p className="event-detail-panel__summary">{event.summary}</p>
@@ -89,15 +102,7 @@ export function EventDetailPanel({ event, onClose }: EventDetailPanelProps) {
             <dt>Direccion visible</dt>
             <dd>{event.location.addressText}</dd>
           </div>
-          <div className="event-detail-panel__field">
-            <dt>Ubicacion</dt>
-            <dd>
-              {event.location.latitude.toFixed(4)}, {event.location.longitude.toFixed(4)}
-            </dd>
-          </div>
         </dl>
-
-        {approximate ? <p className="event-detail-panel__note">Ubicacion aproximada señalizada en el mapa.</p> : null}
 
         <p className="event-detail-panel__footer-note">
           Este detalle usa solo el mismo payload de descubrimiento. No requiere otra llamada al backend.

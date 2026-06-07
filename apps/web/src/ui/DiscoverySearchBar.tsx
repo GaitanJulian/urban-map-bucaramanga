@@ -18,7 +18,7 @@ export function DiscoverySearchBar({ value, onChange, onClear }: DiscoverySearch
         type="search"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        placeholder="Busca por nombre, lugar o categoria"
+        placeholder="Buscar eventos, lugares..."
         aria-label="Buscar eventos"
       />
       {hasValue ? (
@@ -29,4 +29,3 @@ export function DiscoverySearchBar({ value, onChange, onClear }: DiscoverySearch
     </label>
   );
 }
-
