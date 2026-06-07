@@ -1,8 +1,10 @@
 import { Injectable } from "@nestjs/common";
+import { ListEventsQueryDto } from "./dto/list-events.query.dto.js";
+import { PublicEventListResponseDto } from "./dto/public-event-list-response.dto.js";
 
 @Injectable()
 export class EventDiscoveryService {
-  listVisibleEvents() {
+  listVisibleEvents(_query: ListEventsQueryDto): PublicEventListResponseDto {
     return {
       items: [],
       pagination: {

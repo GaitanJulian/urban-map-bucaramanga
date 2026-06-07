@@ -29,5 +29,9 @@ Monorepo modular para el MVP Release 1 de descubrimiento público de eventos en 
    - `npm run dev:api`
    - `npm run dev:web`
 
+## Swagger
+- Documentación del API: `http://localhost:3001/docs`
+- Health check: `http://localhost:3001/health`
+
 ## Nota
 El scaffold solo prepara la estructura base del Release 1. La lógica completa de negocio todavía no está implementada.
