@@ -32,6 +32,9 @@ export class EventLocationDto {
   @ApiProperty({ example: "neighborhood" })
   precisionLevel!: string;
 
+  @ApiProperty({ required: false, example: "Ubicacion aproximada a nivel de barrio." })
+  approximationNote?: string | null;
+
   @ApiProperty({ example: true })
   isApproximateLocation!: boolean;
 }
@@ -75,4 +78,7 @@ export class PublicEventDto {
 
   @ApiProperty({ example: true })
   isFree!: boolean;
+
+  @ApiProperty({ example: false })
+  isApproximateLocation!: boolean;
 }

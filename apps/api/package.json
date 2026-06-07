@@ -7,6 +7,8 @@
     "build": "nest build",
     "start": "node dist/main.js",
     "start:dev": "nest start --watch",
+    "db:migrate": "tsx src/database/run-migrations.ts",
+    "db:seed:release1": "tsx src/database/seed-release1.ts",
     "test": "echo \"No tests yet\"",
     "lint": "echo \"No lint configured yet\""
   },
@@ -24,12 +26,14 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^5.0.1",
+    "tsx": "^4.22.4",
     "typeorm": "^0.3.20"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.5",
     "@nestjs/schematics": "^10.1.4",
     "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
 }

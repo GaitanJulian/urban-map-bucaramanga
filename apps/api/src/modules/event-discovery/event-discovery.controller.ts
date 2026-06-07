@@ -15,7 +15,7 @@ export class EventDiscoveryController {
     type: PublicEventListResponseDto
   })
   @Get()
-  list(@Query() query: ListEventsQueryDto) {
+  async list(@Query() query: ListEventsQueryDto) {
     return this.eventDiscoveryService.listVisibleEvents(query);
   }
 }

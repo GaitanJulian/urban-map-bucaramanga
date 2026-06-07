@@ -16,6 +16,15 @@ export class PublicEventPaginationDto {
 }
 
 export class AppliedFiltersDto {
+  @ApiProperty({ example: "Bucaramanga" })
+  scope!: string;
+
+  @ApiProperty({ example: "visible" })
+  visibilityState!: string;
+
+  @ApiProperty({ example: ["upcoming", "live"], isArray: true })
+  lifecycle!: string[];
+
   @ApiProperty({ required: false, example: "music" })
   categoryId?: string;
 
