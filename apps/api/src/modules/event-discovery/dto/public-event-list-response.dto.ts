@@ -25,6 +25,9 @@ export class AppliedFiltersDto {
   @ApiProperty({ example: ["upcoming", "live"], isArray: true })
   lifecycle!: string[];
 
+  @ApiProperty({ required: false, example: "concierto" })
+  q?: string;
+
   @ApiProperty({ required: false, example: "cat_music" })
   categoryId?: string;
 

@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, SelectQueryBuilder } from "typeorm";
+import { Brackets, Repository, SelectQueryBuilder, WhereExpressionBuilder } from "typeorm";
 import { ListEventsQueryDto } from "./dto/list-events.query.dto.js";
 import { PublicEventListResponseDto } from "./dto/public-event-list-response.dto.js";
 import { PublicEventDto } from "./dto/public-event.dto.js";
@@ -37,6 +37,7 @@ export class EventDiscoveryService {
       lifecycle: ["upcoming", "live"]
     };
 
+    this.applyTextSearch(qb, query, appliedFilters);
     this.applyCategoryFilter(qb, query, appliedFilters);
     this.applyZoneFilter(qb, query, appliedFilters);
     this.applyDateFilter(qb, query, appliedFilters);
@@ -66,6 +67,7 @@ export class EventDiscoveryService {
         scope: "Bucaramanga",
         visibilityState: "visible",
         lifecycle: ["upcoming", "live"],
+        ...(this.hasText(query.q) ? { q: query.q } : {}),
         ...(this.hasText(query.categoryId) ? { categoryId: query.categoryId } : {}),
         ...(this.hasText(query.zoneId) ? { zoneId: query.zoneId } : {}),
         ...(this.hasText(query.dateFrom) ? { dateFrom: query.dateFrom } : {}),
@@ -78,6 +80,35 @@ export class EventDiscoveryService {
         ...(shouldOrderByDistance ? { sort: "distance" } : {})
       }
     };
+  }
+
+  private applyTextSearch(
+    qb: SelectQueryBuilder<EventEntity>,
+    query: ListEventsQueryDto,
+    appliedFilters: Record<string, unknown>
+  ): void {
+    if (!this.hasText(query.q)) {
+      return;
+    }
+
+    const searchTerm = this.escapeLikePattern(query.q.trim());
+    const searchPattern = `%${searchTerm}%`;
+
+    qb.andWhere(
+      new Brackets((subQuery: WhereExpressionBuilder) => {
+        subQuery
+          .where("event.title ILIKE :searchPattern ESCAPE '\\'")
+          .orWhere("event.summary ILIKE :searchPattern ESCAPE '\\'")
+          .orWhere("event.description ILIKE :searchPattern ESCAPE '\\'")
+          .orWhere("location.label ILIKE :searchPattern ESCAPE '\\'")
+          .orWhere("location.addressText ILIKE :searchPattern ESCAPE '\\'")
+          .orWhere("category.name ILIKE :searchPattern ESCAPE '\\'")
+          .orWhere("zone.name ILIKE :searchPattern ESCAPE '\\'");
+      }),
+      { searchPattern }
+    );
+
+    appliedFilters.q = query.q.trim();
   }
 
   private applyCategoryFilter(
@@ -320,5 +351,9 @@ export class EventDiscoveryService {
 
   private hasText(value: unknown): value is string {
     return typeof value === "string" && value.trim().length > 0;
+  }
+
+  private escapeLikePattern(value: string): string {
+    return value.replace(/[%_\\]/g, (match) => `\\${match}`);
   }
 }

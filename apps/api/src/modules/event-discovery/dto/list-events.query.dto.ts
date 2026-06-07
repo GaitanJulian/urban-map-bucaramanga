@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
 
 export class ListEventsQueryDto {
-  @ApiPropertyOptional({ description: "Search keyword", example: "concierto" })
+  @ApiPropertyOptional({ description: "Basic text search across title, summary, description, location, category and zone", example: "concierto" })
   q?: string;
 
   @ApiPropertyOptional({ description: "Category identifier", example: "cat_music" })
