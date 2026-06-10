@@ -1,0 +1,69 @@
+import { Body, Controller, Get, Param, Post, Version } from "@nestjs/common";
+import { ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ModerationTrustService } from "./moderation-trust.service.js";
+import {
+  ModerationCaseDecisionResponseDto,
+  ModerationCaseResponseDto
+} from "./dto/moderation-trust.dto.js";
+
+@ApiTags("Moderation Trust")
+@Controller("moderation/cases")
+export class ModerationCasesController {
+  constructor(private readonly moderationTrustService: ModerationTrustService) {}
+
+  @Version("2")
+  @Get()
+  @ApiOperation({ summary: "List moderation cases scaffold" })
+  @ApiOkResponse({ type: ModerationCaseResponseDto, isArray: true })
+  list(): ModerationCaseResponseDto[] {
+    return this.moderationTrustService.listCases();
+  }
+
+  @Version("2")
+  @Get(":caseId")
+  @ApiOperation({ summary: "Get moderation case scaffold" })
+  @ApiOkResponse({ type: ModerationCaseResponseDto })
+  get(@Param("caseId") caseId: string): ModerationCaseResponseDto {
+    return this.moderationTrustService.getCase(caseId);
+  }
+
+  @Version("2")
+  @Post(":caseId/approve")
+  @ApiOperation({ summary: "Approve moderation case scaffold" })
+  @ApiOkResponse({ type: ModerationCaseDecisionResponseDto })
+  approve(@Param("caseId") caseId: string): ModerationCaseDecisionResponseDto {
+    return this.moderationTrustService.decideCase(caseId, "approved");
+  }
+
+  @Version("2")
+  @Post(":caseId/reject")
+  @ApiOperation({ summary: "Reject moderation case scaffold" })
+  @ApiOkResponse({ type: ModerationCaseDecisionResponseDto })
+  reject(@Param("caseId") caseId: string): ModerationCaseDecisionResponseDto {
+    return this.moderationTrustService.decideCase(caseId, "rejected");
+  }
+
+  @Version("2")
+  @Post(":caseId/request-correction")
+  @ApiOperation({ summary: "Request correction scaffold" })
+  @ApiOkResponse({ type: ModerationCaseDecisionResponseDto })
+  requestCorrection(@Param("caseId") caseId: string): ModerationCaseDecisionResponseDto {
+    return this.moderationTrustService.decideCase(caseId, "needs_correction");
+  }
+
+  @Version("2")
+  @Post(":caseId/hide")
+  @ApiOperation({ summary: "Hide moderation case scaffold" })
+  @ApiOkResponse({ type: ModerationCaseDecisionResponseDto })
+  hide(@Param("caseId") caseId: string): ModerationCaseDecisionResponseDto {
+    return this.moderationTrustService.decideCase(caseId, "hidden");
+  }
+
+  @Version("2")
+  @Post(":caseId/escalate")
+  @ApiOperation({ summary: "Escalate moderation case scaffold" })
+  @ApiOkResponse({ type: ModerationCaseDecisionResponseDto })
+  escalate(@Param("caseId") caseId: string): ModerationCaseDecisionResponseDto {
+    return this.moderationTrustService.decideCase(caseId, "escalated");
+  }
+}

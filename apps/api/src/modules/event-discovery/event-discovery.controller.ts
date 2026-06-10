@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from "@nestjs/common";
+import { Controller, Get, Query, Version } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { EventDiscoveryService } from "./event-discovery.service.js";
 import { ListEventsQueryDto } from "./dto/list-events.query.dto.js";
@@ -9,6 +9,7 @@ import { PublicEventListResponseDto } from "./dto/public-event-list-response.dto
 export class EventDiscoveryController {
   constructor(private readonly eventDiscoveryService: EventDiscoveryService) {}
 
+  @Version("1")
   @ApiOperation({ summary: "List visible events" })
   @ApiOkResponse({
     description: "Visible events for discovery",
