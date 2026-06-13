@@ -176,6 +176,23 @@ export class EventPublicationService {
       return null;
     }
 
+    if (latestPublicationCase.status === "approved") {
+      const currentSnapshot = this.createDraftSnapshot(draft);
+      if (!latestPublicationCase.submittedSnapshot) {
+        return latestPublicationCase;
+      }
+
+      if (!this.hasCriticalChanges(latestPublicationCase.submittedSnapshot as DraftSnapshot, currentSnapshot)) {
+        return latestPublicationCase;
+      }
+
+      const reopenedPublicationCase = await this.createPublicationCaseFromDraft(draft, currentSnapshot);
+      draft.publicationStatus = "pending";
+      draft.updatedAt = new Date();
+      await this.draftRepository.save(draft);
+      return reopenedPublicationCase;
+    }
+
     if (!this.isActivePublicationFlow(latestPublicationCase.status)) {
       return latestPublicationCase;
     }
@@ -202,6 +219,23 @@ export class EventPublicationService {
     }
 
     return latestPublicationCase;
+  }
+
+  private async createPublicationCaseFromDraft(draft: EventDraftEntity, submittedSnapshot: DraftSnapshot): Promise<PublicationCaseEntity> {
+    const publicationCase = this.publicationCaseRepository.create({
+      id: this.createScopedId("publication_case"),
+      eventDraftId: draft.id,
+      submittedByActorAccountId: null,
+      status: "submitted",
+      submittedAt: new Date(),
+      reviewedAt: null,
+      reviewDecisionId: null,
+      criticalChangeFlag: false,
+      submittedSnapshot
+    });
+
+    await this.publicationCaseRepository.save(publicationCase);
+    return publicationCase;
   }
 
   private async findDraftOrFail(draftId: string): Promise<EventDraftEntity> {
