@@ -8,7 +8,16 @@ export class DraftResponseDto {
   @ApiProperty({ example: "Borrador de Release 2" })
   title!: string;
 
-  @ApiProperty({ example: "draft", enum: ["draft", "incomplete", "ready_for_review", "pending", "changes_requested", "approved", "published", "cancelled"] })
+  @ApiPropertyOptional({ example: "organizer_scaffold" })
+  organizerProfileId?: string | null;
+
+  @ApiPropertyOptional({ example: "publication_case_scaffold" })
+  publicationCaseId?: string | null;
+
+  @ApiProperty({
+    example: "draft",
+    enum: ["draft", "incomplete", "ready_for_review", "pending", "changes_requested", "approved", "published", "cancelled"]
+  })
   publicationStatus!: PublicationStatus;
 }
 
@@ -32,14 +41,32 @@ export class DraftMutationResponseDto {
 
   @ApiPropertyOptional({ example: "pending" })
   publicationStatus?: PublicationStatus;
+
+  @ApiPropertyOptional({ example: "publication_case_scaffold" })
+  publicationCaseId?: string | null;
 }
 
 export class UpdateDraftRequestDto {
-  @ApiPropertyOptional({ example: "Nuevo título del evento" })
+  @ApiPropertyOptional({ example: "Nuevo titulo del evento" })
   title?: string;
+
+  @ApiPropertyOptional({ example: "Resumen corto del evento" })
+  summary?: string;
+
+  @ApiPropertyOptional({ example: "Descripcion larga del borrador" })
+  description?: string;
 }
 
 export class CreateDraftRequestDto {
   @ApiPropertyOptional({ example: "Fundacion Cultural Bucaramanga" })
   organizerProfileId?: string;
+
+  @ApiPropertyOptional({ example: "Borrador de Release 2" })
+  title?: string;
+
+  @ApiPropertyOptional({ example: "Resumen corto del evento" })
+  summary?: string;
+
+  @ApiPropertyOptional({ example: "Descripcion larga del borrador" })
+  description?: string;
 }
