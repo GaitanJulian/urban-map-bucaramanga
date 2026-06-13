@@ -8,6 +8,7 @@ import { EventLocationEntity } from "../modules/geolocation-place/entities/event
 import { ZoneEntity } from "../modules/geolocation-place/entities/zone.entity.js";
 import { Release11710000000000 } from "./migrations/1710000000000-release-1-initial.js";
 import { Release21725000000000 } from "./migrations/1725000000000-release-2-publication.js";
+import { Release21726000000000 } from "./migrations/1726000000000-release-2-submission-control.js";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -17,6 +18,6 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD ?? "postgres",
   database: process.env.DB_NAME ?? "urban_map_bucaramanga",
   entities: [EventEntity, EventCategoryEntity, EventLocationEntity, ZoneEntity, EventDraftEntity, PublicationCaseEntity],
-  migrations: [Release11710000000000, Release21725000000000],
+  migrations: [Release11710000000000, Release21725000000000, Release21726000000000],
   synchronize: false
 });

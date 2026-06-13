@@ -14,6 +14,9 @@ export class DraftResponseDto {
   @ApiPropertyOptional({ example: "publication_case_scaffold" })
   publicationCaseId?: string | null;
 
+  @ApiPropertyOptional({ example: "submitted", nullable: true })
+  publicationCaseStatus?: string | null;
+
   @ApiProperty({
     example: "draft",
     enum: ["draft", "incomplete", "ready_for_review", "pending", "changes_requested", "approved", "published", "cancelled"]
@@ -44,6 +47,9 @@ export class DraftMutationResponseDto {
 
   @ApiPropertyOptional({ example: "publication_case_scaffold" })
   publicationCaseId?: string | null;
+
+  @ApiPropertyOptional({ example: "submitted", nullable: true })
+  publicationCaseStatus?: string | null;
 }
 
 export class UpdateDraftRequestDto {

@@ -28,6 +28,9 @@ export class PublicationCaseEntity {
   @Column({ type: "boolean", name: "critical_change_flag", default: false })
   criticalChangeFlag!: boolean;
 
+  @Column({ type: "jsonb", name: "submitted_snapshot", nullable: true })
+  submittedSnapshot!: Record<string, unknown> | null;
+
   @Column({ type: "timestamptz", name: "created_at", default: () => "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 

@@ -2,9 +2,28 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 import { InjectRepository } from "@nestjs/typeorm";
 import { randomUUID } from "node:crypto";
 import { In, Repository } from "typeorm";
-import { CreateDraftRequestDto, DraftMutationResponseDto, DraftResponseDto, DraftValidationResponseDto, UpdateDraftRequestDto } from "./dto/event-publication.dto.js";
+import {
+  CreateDraftRequestDto,
+  DraftMutationResponseDto,
+  DraftResponseDto,
+  DraftValidationResponseDto,
+  UpdateDraftRequestDto
+} from "./dto/event-publication.dto.js";
 import { EventDraftEntity } from "./entities/event-draft.entity.js";
 import { PublicationCaseEntity } from "./entities/publication-case.entity.js";
+
+type DraftSnapshot = {
+  title: string;
+  summary: string | null;
+  description: string | null;
+  categoryId: string | null;
+  locationId: string | null;
+  zoneId: string | null;
+  startsAt: string | null;
+  endsAt: string | null;
+  costLabel: string | null;
+  isFree: boolean;
+};
 
 @Injectable()
 export class EventPublicationService {
@@ -18,7 +37,7 @@ export class EventPublicationService {
   async createDraft(body: CreateDraftRequestDto): Promise<DraftResponseDto> {
     const draft = this.draftRepository.create({
       id: this.createScopedId("draft"),
-      organizerProfileId: body.organizerProfileId?.trim() || null,
+      organizerProfileId: this.normalizeText(body.organizerProfileId),
       title: this.normalizeText(body.title) ?? "Borrador de Release 2",
       summary: this.normalizeText(body.summary),
       description: this.normalizeText(body.description),
@@ -68,22 +87,28 @@ export class EventPublicationService {
     }
 
     draft.updatedAt = new Date();
-    await this.draftRepository.save(draft);
+    const savedDraft = await this.draftRepository.save(draft);
 
-    const latestPublicationCase = await this.findLatestPublicationCase(draftId);
-    return this.toMutationResponse(draft, latestPublicationCase?.id ?? null, false);
+    const publicationCase = await this.reconcilePublicationControl(savedDraft);
+    return this.toMutationResponse(savedDraft, publicationCase, false);
   }
 
   async saveDraft(draftId: string): Promise<DraftMutationResponseDto> {
     const draft = await this.findDraftOrFail(draftId);
     const validation = this.validateDraftState(draft);
-    draft.publicationStatus = validation.isValid ? "ready_for_review" : "incomplete";
+
+    const latestPublicationCase = await this.findLatestPublicationCase(draft.id);
+    const hasActiveSubmission = latestPublicationCase !== null && this.isActivePublicationFlow(latestPublicationCase.status);
+
+    if (!hasActiveSubmission) {
+      draft.publicationStatus = validation.isValid ? "ready_for_review" : "incomplete";
+    }
+
     draft.updatedAt = new Date();
 
-    await this.draftRepository.save(draft);
-
-    const latestPublicationCase = await this.findLatestPublicationCase(draftId);
-    return this.toMutationResponse(draft, latestPublicationCase?.id ?? null, true);
+    const savedDraft = await this.draftRepository.save(draft);
+    const publicationCase = await this.reconcilePublicationControl(savedDraft);
+    return this.toMutationResponse(savedDraft, publicationCase ?? latestPublicationCase, true);
   }
 
   async validateDraft(draftId: string): Promise<DraftValidationResponseDto> {
@@ -115,16 +140,17 @@ export class EventPublicationService {
       submittedAt: new Date(),
       reviewedAt: null,
       reviewDecisionId: null,
-      criticalChangeFlag: false
+      criticalChangeFlag: false,
+      submittedSnapshot: this.createDraftSnapshot(draft)
     });
 
     draft.publicationStatus = "pending";
     draft.updatedAt = new Date();
 
     await this.publicationCaseRepository.save(publicationCase);
-    await this.draftRepository.save(draft);
+    const savedDraft = await this.draftRepository.save(draft);
 
-    return this.toMutationResponse(draft, publicationCase.id, false);
+    return this.toMutationResponse(savedDraft, publicationCase, false);
   }
 
   async cancelDraft(draftId: string): Promise<DraftMutationResponseDto> {
@@ -133,15 +159,49 @@ export class EventPublicationService {
     draft.updatedAt = new Date();
 
     const latestPublicationCase = await this.findLatestPublicationCase(draftId);
-    if (latestPublicationCase && ["submitted", "in_review"].includes(latestPublicationCase.status)) {
+    if (latestPublicationCase && ["submitted", "in_review", "changes_requested"].includes(latestPublicationCase.status)) {
       latestPublicationCase.status = "cancelled";
       latestPublicationCase.reviewedAt = new Date();
       latestPublicationCase.updatedAt = new Date();
       await this.publicationCaseRepository.save(latestPublicationCase);
     }
 
-    await this.draftRepository.save(draft);
-    return this.toMutationResponse(draft, latestPublicationCase?.id ?? null, false);
+    const savedDraft = await this.draftRepository.save(draft);
+    return this.toMutationResponse(savedDraft, latestPublicationCase, false);
+  }
+
+  private async reconcilePublicationControl(draft: EventDraftEntity): Promise<PublicationCaseEntity | null> {
+    const latestPublicationCase = await this.findLatestPublicationCase(draft.id);
+    if (!latestPublicationCase) {
+      return null;
+    }
+
+    if (!this.isActivePublicationFlow(latestPublicationCase.status)) {
+      return latestPublicationCase;
+    }
+
+    const submittedSnapshot = latestPublicationCase.submittedSnapshot;
+    if (!submittedSnapshot) {
+      return latestPublicationCase;
+    }
+
+    const currentSnapshot = this.createDraftSnapshot(draft);
+    if (!this.hasCriticalChanges(submittedSnapshot as DraftSnapshot, currentSnapshot)) {
+      return latestPublicationCase;
+    }
+
+    latestPublicationCase.status = "changes_requested";
+    latestPublicationCase.criticalChangeFlag = true;
+    latestPublicationCase.updatedAt = new Date();
+    await this.publicationCaseRepository.save(latestPublicationCase);
+
+    if (draft.publicationStatus === "pending" || draft.publicationStatus === "ready_for_review") {
+      draft.publicationStatus = "changes_requested";
+      draft.updatedAt = new Date();
+      await this.draftRepository.save(draft);
+    }
+
+    return latestPublicationCase;
   }
 
   private async findDraftOrFail(draftId: string): Promise<EventDraftEntity> {
@@ -199,26 +259,62 @@ export class EventPublicationService {
     };
   }
 
+  private createDraftSnapshot(draft: EventDraftEntity): DraftSnapshot {
+    return {
+      title: draft.title,
+      summary: draft.summary,
+      description: draft.description,
+      categoryId: draft.categoryId,
+      locationId: draft.locationId,
+      zoneId: draft.zoneId,
+      startsAt: draft.startsAt ? draft.startsAt.toISOString() : null,
+      endsAt: draft.endsAt ? draft.endsAt.toISOString() : null,
+      costLabel: draft.costLabel,
+      isFree: draft.isFree
+    };
+  }
+
+  private hasCriticalChanges(previous: DraftSnapshot, current: DraftSnapshot): boolean {
+    return (
+      previous.title !== current.title ||
+      previous.summary !== current.summary ||
+      previous.description !== current.description ||
+      previous.categoryId !== current.categoryId ||
+      previous.locationId !== current.locationId ||
+      previous.zoneId !== current.zoneId ||
+      previous.startsAt !== current.startsAt ||
+      previous.endsAt !== current.endsAt ||
+      previous.costLabel !== current.costLabel ||
+      previous.isFree !== current.isFree
+    );
+  }
+
+  private isActivePublicationFlow(status: string): boolean {
+    return ["submitted", "in_review"].includes(status);
+  }
+
   private toDraftResponse(draft: EventDraftEntity, publicationCase: PublicationCaseEntity | null): DraftResponseDto {
     return {
       draftId: draft.id,
       title: draft.title,
       organizerProfileId: draft.organizerProfileId,
       publicationCaseId: publicationCase?.id ?? null,
+      publicationCaseStatus: publicationCase?.status ?? null,
       publicationStatus: draft.publicationStatus
     };
   }
 
   private toMutationResponse(
     draft: EventDraftEntity,
-    publicationCaseId: string | null,
+    publicationCase: PublicationCaseEntity | null,
     saved: boolean
   ): DraftMutationResponseDto {
     return {
       draftId: draft.id,
       saved,
       publicationStatus: draft.publicationStatus,
-      publicationCaseId
+      publicationCaseId: publicationCase?.id ?? null,
+      publicationCaseStatus: publicationCase?.status ?? null
     };
   }
 
