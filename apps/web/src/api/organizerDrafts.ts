@@ -110,14 +110,14 @@ export function listOrganizerDrafts(): Promise<OrganizerDraft[]> {
 export function createOrganizerDraft(input: Partial<DraftEditorState>): Promise<OrganizerDraft> {
   return requestJson<OrganizerDraft>("/organizer/drafts", {
     method: "POST",
-    body: JSON.stringify(input)
+    body: JSON.stringify(toDraftPayload(input))
   });
 }
 
 export function updateOrganizerDraft(draftId: string, input: DraftEditorState): Promise<DraftMutationResponse> {
   return requestJson<DraftMutationResponse>(`/organizer/drafts/${encodeURIComponent(draftId)}`, {
     method: "PATCH",
-    body: JSON.stringify(input)
+    body: JSON.stringify(toDraftPayload(input))
   });
 }
 
@@ -137,4 +137,25 @@ export function submitOrganizerDraft(draftId: string): Promise<DraftMutationResp
   return requestJson<DraftMutationResponse>(`/organizer/drafts/${encodeURIComponent(draftId)}/submit`, {
     method: "POST"
   });
+}
+
+function toDraftPayload(input: Partial<DraftEditorState>): Record<string, unknown> {
+  return {
+    ...input,
+    startsAt: toIsoDateTime(input.startsAt),
+    endsAt: toIsoDateTime(input.endsAt)
+  };
+}
+
+function toIsoDateTime(value: string | undefined): string | undefined {
+  if (value === undefined || value.trim().length === 0) {
+    return value;
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toISOString();
 }

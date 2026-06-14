@@ -1434,6 +1434,42 @@ button {
   margin-top: 18px;
 }
 
+.organizer-form__grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.organizer-form__cost {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(180px, 0.55fr) minmax(0, 1fr);
+  align-items: end;
+}
+
+.workspace-field--checkbox {
+  min-height: 48px;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(229, 226, 225, 0.9);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.workspace-field--checkbox input {
+  width: 18px;
+  height: 18px;
+  min-height: 0;
+  padding: 0;
+}
+
+.workspace-field--checkbox span {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.95rem;
+}
+
 .organizer-actions {
   display: flex;
   gap: 10px;
@@ -1800,6 +1836,11 @@ button {
 
   .organizer-actions {
     align-items: stretch;
+  }
+
+  .organizer-form__grid,
+  .organizer-form__cost {
+    grid-template-columns: 1fr;
   }
 
   .organizer-actions .workspace-button {

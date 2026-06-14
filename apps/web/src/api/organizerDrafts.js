@@ -79,13 +79,13 @@ export function listOrganizerDrafts() {
 export function createOrganizerDraft(input) {
     return requestJson("/organizer/drafts", {
         method: "POST",
-        body: JSON.stringify(input)
+        body: JSON.stringify(toDraftPayload(input))
     });
 }
 export function updateOrganizerDraft(draftId, input) {
     return requestJson(`/organizer/drafts/${encodeURIComponent(draftId)}`, {
         method: "PATCH",
-        body: JSON.stringify(input)
+        body: JSON.stringify(toDraftPayload(input))
     });
 }
 export function saveOrganizerDraft(draftId) {
@@ -102,5 +102,22 @@ export function submitOrganizerDraft(draftId) {
     return requestJson(`/organizer/drafts/${encodeURIComponent(draftId)}/submit`, {
         method: "POST"
     });
+}
+function toDraftPayload(input) {
+    return {
+        ...input,
+        startsAt: toIsoDateTime(input.startsAt),
+        endsAt: toIsoDateTime(input.endsAt)
+    };
+}
+function toIsoDateTime(value) {
+    if (value === undefined || value.trim().length === 0) {
+        return value;
+    }
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+        return value;
+    }
+    return date.toISOString();
 }
 //# sourceMappingURL=organizerDrafts.js.map

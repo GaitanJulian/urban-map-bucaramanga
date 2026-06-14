@@ -5,6 +5,14 @@ export interface OrganizerDraft {
   title: string;
   summary: string | null;
   description: string | null;
+  categoryId: string | null;
+  zoneId: string | null;
+  venueName: string | null;
+  address: string | null;
+  startsAt: string | null;
+  endsAt: string | null;
+  isFree: boolean;
+  costLabel: string | null;
   organizerProfileId?: string | null;
   publicationCaseId?: string | null;
   publicationCaseStatus?: string | null;
@@ -29,4 +37,12 @@ export interface DraftEditorState {
   title: string;
   summary: string;
   description: string;
+  categoryId: string;
+  zoneId: string;
+  venueName: string;
+  address: string;
+  startsAt: string;
+  endsAt: string;
+  isFree: boolean;
+  costLabel: string;
 }

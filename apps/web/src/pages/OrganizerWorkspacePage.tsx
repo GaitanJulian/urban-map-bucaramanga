@@ -14,8 +14,27 @@ import { WorkspaceShell } from "../workspaces/WorkspaceShell";
 const EMPTY_EDITOR: DraftEditorState = {
   title: "",
   summary: "",
-  description: ""
+  description: "",
+  categoryId: "",
+  zoneId: "",
+  venueName: "",
+  address: "",
+  startsAt: "",
+  endsAt: "",
+  isFree: false,
+  costLabel: ""
 };
+
+const CATEGORY_OPTIONS = [
+  { value: "cat_music", label: "Musica" },
+  { value: "cat_culture", label: "Cultura" },
+  { value: "cat_food", label: "Gastronomia" }
+];
+
+const ZONE_OPTIONS = [
+  { value: "zone_cabecera", label: "Cabecera del Llano" },
+  { value: "zone_centro", label: "Centro" }
+];
 
 function toEditorState(draft: OrganizerDraft | null): DraftEditorState {
   if (!draft) {
@@ -25,8 +44,30 @@ function toEditorState(draft: OrganizerDraft | null): DraftEditorState {
   return {
     title: draft.title,
     summary: draft.summary ?? "",
-    description: draft.description ?? ""
+    description: draft.description ?? "",
+    categoryId: draft.categoryId ?? "",
+    zoneId: draft.zoneId ?? "",
+    venueName: draft.venueName ?? "",
+    address: draft.address ?? "",
+    startsAt: toDateTimeLocalValue(draft.startsAt),
+    endsAt: toDateTimeLocalValue(draft.endsAt),
+    isFree: draft.isFree,
+    costLabel: draft.costLabel ?? ""
   };
+}
+
+function toDateTimeLocalValue(value: string | null): string {
+  if (!value) {
+    return "";
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  const offsetDate = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return offsetDate.toISOString().slice(0, 16);
 }
 
 function statusLabel(value: string | null | undefined): string {
@@ -146,7 +187,15 @@ export function OrganizerWorkspacePage() {
       const draft = await createOrganizerDraft({
         title: "Nuevo borrador",
         summary: "",
-        description: ""
+        description: "",
+        categoryId: "",
+        zoneId: "",
+        venueName: "",
+        address: "",
+        startsAt: "",
+        endsAt: "",
+        isFree: false,
+        costLabel: ""
       });
 
       setNotice("Borrador creado.");
@@ -233,7 +282,7 @@ export function OrganizerWorkspacePage() {
         <article className="workspace-card organizer-workspace__editor">
           <div className="workspace-card__copy">
             <h2>Editor</h2>
-            <p>Campos disponibles para este slice: titulo, resumen y descripcion.</p>
+            <p>Datos principales del evento para envio a revision.</p>
           </div>
 
           {selectedDraft ? (
@@ -267,6 +316,100 @@ export function OrganizerWorkspacePage() {
                   rows={8}
                 />
               </label>
+
+              <div className="organizer-form__grid">
+                <label className="workspace-field">
+                  <span>Categoria</span>
+                  <select value={editor.categoryId} onChange={(event) => patchEditor({ categoryId: event.target.value })}>
+                    <option value="">Selecciona categoria</option>
+                    {CATEGORY_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="workspace-field">
+                  <span>Zona</span>
+                  <select value={editor.zoneId} onChange={(event) => patchEditor({ zoneId: event.target.value })}>
+                    <option value="">Selecciona zona</option>
+                    {ZONE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <div className="organizer-form__grid">
+                <label className="workspace-field">
+                  <span>Lugar</span>
+                  <input
+                    value={editor.venueName}
+                    onChange={(event) => patchEditor({ venueName: event.target.value })}
+                    placeholder="Nombre del lugar"
+                    maxLength={180}
+                  />
+                </label>
+
+                <label className="workspace-field">
+                  <span>Direccion</span>
+                  <input
+                    value={editor.address}
+                    onChange={(event) => patchEditor({ address: event.target.value })}
+                    placeholder="Direccion o referencia"
+                    maxLength={280}
+                  />
+                </label>
+              </div>
+
+              <div className="organizer-form__grid">
+                <label className="workspace-field">
+                  <span>Inicio</span>
+                  <input
+                    type="datetime-local"
+                    value={editor.startsAt}
+                    onChange={(event) => patchEditor({ startsAt: event.target.value })}
+                  />
+                </label>
+
+                <label className="workspace-field">
+                  <span>Fin</span>
+                  <input
+                    type="datetime-local"
+                    value={editor.endsAt}
+                    onChange={(event) => patchEditor({ endsAt: event.target.value })}
+                  />
+                </label>
+              </div>
+
+              <div className="organizer-form__cost">
+                <label className="workspace-field workspace-field--checkbox">
+                  <input
+                    type="checkbox"
+                    checked={editor.isFree}
+                    onChange={(event) =>
+                      patchEditor({
+                        isFree: event.target.checked,
+                        costLabel: event.target.checked ? "Gratis" : editor.costLabel
+                      })
+                    }
+                  />
+                  <span>Evento gratuito</span>
+                </label>
+
+                <label className="workspace-field">
+                  <span>Costo</span>
+                  <input
+                    value={editor.costLabel}
+                    onChange={(event) => patchEditor({ costLabel: event.target.value })}
+                    placeholder={editor.isFree ? "Gratis" : "Ej. $25.000"}
+                    maxLength={80}
+                  />
+                </label>
+              </div>
 
               <div className="organizer-actions">
                 <button className="workspace-button workspace-button--primary" type="button" onClick={handleSaveDraft} disabled={isMutating}>

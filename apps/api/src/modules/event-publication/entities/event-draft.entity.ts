@@ -29,6 +29,12 @@ export class EventDraftEntity {
   @Column({ type: "varchar", length: 64, name: "zone_id", nullable: true })
   zoneId!: string | null;
 
+  @Column({ type: "varchar", length: 180, name: "venue_name", nullable: true })
+  venueName!: string | null;
+
+  @Column({ type: "varchar", length: 280, name: "address_text", nullable: true })
+  address!: string | null;
+
   @Column({ type: "timestamptz", name: "starts_at", nullable: true })
   startsAt!: Date | null;
 

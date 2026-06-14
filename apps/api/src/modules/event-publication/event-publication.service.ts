@@ -19,6 +19,8 @@ type DraftSnapshot = {
   categoryId: string | null;
   locationId: string | null;
   zoneId: string | null;
+  venueName: string | null;
+  address: string | null;
   startsAt: string | null;
   endsAt: string | null;
   costLabel: string | null;
@@ -41,13 +43,15 @@ export class EventPublicationService {
       title: this.normalizeText(body.title) ?? "Borrador de Release 2",
       summary: this.normalizeText(body.summary),
       description: this.normalizeText(body.description),
-      categoryId: null,
+      categoryId: this.normalizeText(body.categoryId),
       locationId: null,
-      zoneId: null,
-      startsAt: null,
-      endsAt: null,
-      costLabel: null,
-      isFree: false,
+      zoneId: this.normalizeText(body.zoneId),
+      venueName: this.normalizeText(body.venueName),
+      address: this.normalizeText(body.address),
+      startsAt: this.parseOptionalDate(body.startsAt, "startsAt"),
+      endsAt: this.parseOptionalDate(body.endsAt, "endsAt"),
+      costLabel: this.normalizeText(body.costLabel),
+      isFree: body.isFree ?? false,
       publicationStatus: "draft",
       visibilityState: "private"
     });
@@ -84,6 +88,30 @@ export class EventPublicationService {
     }
     if (body.description !== undefined) {
       draft.description = this.normalizeText(body.description);
+    }
+    if (body.categoryId !== undefined) {
+      draft.categoryId = this.normalizeText(body.categoryId);
+    }
+    if (body.zoneId !== undefined) {
+      draft.zoneId = this.normalizeText(body.zoneId);
+    }
+    if (body.venueName !== undefined) {
+      draft.venueName = this.normalizeText(body.venueName);
+    }
+    if (body.address !== undefined) {
+      draft.address = this.normalizeText(body.address);
+    }
+    if (body.startsAt !== undefined) {
+      draft.startsAt = this.parseOptionalDate(body.startsAt, "startsAt");
+    }
+    if (body.endsAt !== undefined) {
+      draft.endsAt = this.parseOptionalDate(body.endsAt, "endsAt");
+    }
+    if (body.isFree !== undefined) {
+      draft.isFree = body.isFree;
+    }
+    if (body.costLabel !== undefined) {
+      draft.costLabel = this.normalizeText(body.costLabel);
     }
 
     draft.updatedAt = new Date();
@@ -286,6 +314,30 @@ export class EventPublicationService {
     if (!this.hasText(draft.description)) {
       issues.push("description is required");
     }
+    if (!this.hasText(draft.categoryId)) {
+      issues.push("categoryId is required");
+    }
+    if (!this.hasText(draft.zoneId)) {
+      issues.push("zoneId is required");
+    }
+    if (!this.hasText(draft.venueName)) {
+      issues.push("venueName is required");
+    }
+    if (!this.hasText(draft.address)) {
+      issues.push("address is required");
+    }
+    if (!draft.startsAt) {
+      issues.push("startsAt is required");
+    }
+    if (!draft.endsAt) {
+      issues.push("endsAt is required");
+    }
+    if (draft.startsAt && draft.endsAt && draft.endsAt.getTime() <= draft.startsAt.getTime()) {
+      issues.push("endsAt must be after startsAt");
+    }
+    if (!draft.isFree && !this.hasText(draft.costLabel)) {
+      issues.push("costLabel is required when event is not free");
+    }
 
     return {
       isValid: issues.length === 0,
@@ -301,6 +353,8 @@ export class EventPublicationService {
       categoryId: draft.categoryId,
       locationId: draft.locationId,
       zoneId: draft.zoneId,
+      venueName: draft.venueName,
+      address: draft.address,
       startsAt: draft.startsAt ? draft.startsAt.toISOString() : null,
       endsAt: draft.endsAt ? draft.endsAt.toISOString() : null,
       costLabel: draft.costLabel,
@@ -316,6 +370,8 @@ export class EventPublicationService {
       previous.categoryId !== current.categoryId ||
       previous.locationId !== current.locationId ||
       previous.zoneId !== current.zoneId ||
+      previous.venueName !== current.venueName ||
+      previous.address !== current.address ||
       previous.startsAt !== current.startsAt ||
       previous.endsAt !== current.endsAt ||
       previous.costLabel !== current.costLabel ||
@@ -333,6 +389,14 @@ export class EventPublicationService {
       title: draft.title,
       summary: draft.summary,
       description: draft.description,
+      categoryId: draft.categoryId,
+      zoneId: draft.zoneId,
+      venueName: draft.venueName,
+      address: draft.address,
+      startsAt: draft.startsAt ? draft.startsAt.toISOString() : null,
+      endsAt: draft.endsAt ? draft.endsAt.toISOString() : null,
+      isFree: draft.isFree,
+      costLabel: draft.costLabel,
       organizerProfileId: draft.organizerProfileId,
       publicationCaseId: publicationCase?.id ?? null,
       publicationCaseStatus: publicationCase?.status ?? null,
@@ -369,5 +433,19 @@ export class EventPublicationService {
 
   private hasText(value: string | null): boolean {
     return typeof value === "string" && value.trim().length > 0;
+  }
+
+  private parseOptionalDate(value: string | undefined, fieldName: string): Date | null {
+    const normalized = this.normalizeText(value);
+    if (normalized === null) {
+      return null;
+    }
+
+    const date = new Date(normalized);
+    if (Number.isNaN(date.getTime())) {
+      throw new BadRequestException(`${fieldName} must be a valid date.`);
+    }
+
+    return date;
   }
 }
