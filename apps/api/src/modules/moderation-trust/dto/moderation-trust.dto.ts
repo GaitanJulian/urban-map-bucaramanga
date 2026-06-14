@@ -1,6 +1,44 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import type { ModerationOutcome } from "@umb/shared";
 
+export class ModerationDraftSnapshotDto {
+  @ApiProperty({ example: "draft_scaffold" })
+  draftId!: string;
+
+  @ApiProperty({ example: "Concierto en Bucaramanga" })
+  title!: string;
+
+  @ApiPropertyOptional({ example: "Resumen corto", nullable: true })
+  summary?: string | null;
+
+  @ApiPropertyOptional({ example: "Descripcion del evento", nullable: true })
+  description?: string | null;
+
+  @ApiPropertyOptional({ example: "cat_music", nullable: true })
+  categoryId?: string | null;
+
+  @ApiPropertyOptional({ example: "zone_cabecera", nullable: true })
+  zoneId?: string | null;
+
+  @ApiPropertyOptional({ example: "Teatro Santander", nullable: true })
+  venueName?: string | null;
+
+  @ApiPropertyOptional({ example: "Calle 33 #18-60", nullable: true })
+  address?: string | null;
+
+  @ApiPropertyOptional({ example: "2026-07-01T19:00:00.000Z", nullable: true })
+  startsAt?: string | null;
+
+  @ApiPropertyOptional({ example: "2026-07-01T22:00:00.000Z", nullable: true })
+  endsAt?: string | null;
+
+  @ApiProperty({ example: true })
+  isFree!: boolean;
+
+  @ApiPropertyOptional({ example: "Gratis", nullable: true })
+  costLabel?: string | null;
+}
+
 export class ModerationCaseResponseDto {
   @ApiProperty({ example: "case_scaffold" })
   caseId!: string;
@@ -13,6 +51,18 @@ export class ModerationCaseResponseDto {
 
   @ApiPropertyOptional({ example: "pending", nullable: true })
   publicationCaseStatus?: string | null;
+
+  @ApiPropertyOptional({ example: "2026-06-13T12:00:00.000Z", nullable: true })
+  submittedAt?: string | null;
+
+  @ApiPropertyOptional({ example: "2026-06-13T12:00:00.000Z", nullable: true })
+  createdAt?: string | null;
+
+  @ApiPropertyOptional({ type: ModerationDraftSnapshotDto, nullable: true })
+  draft?: ModerationDraftSnapshotDto | null;
+
+  @ApiPropertyOptional({ type: Object, nullable: true })
+  submittedSnapshot?: Record<string, unknown> | null;
 
   @ApiProperty({ example: "pending" })
   status!: string;
