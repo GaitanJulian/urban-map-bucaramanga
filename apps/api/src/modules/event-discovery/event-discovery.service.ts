@@ -341,7 +341,9 @@ export class EventDiscoveryService {
       endsAt: event.endsAt.toISOString(),
       costLabel: event.costLabel,
       isFree: event.isFree,
-      isApproximateLocation: event.isApproximateLocation
+      isApproximateLocation: event.isApproximateLocation,
+      sourceDraftId: event.sourceDraftId,
+      sourcePublicationCaseId: event.sourcePublicationCaseId
     };
   }
 
