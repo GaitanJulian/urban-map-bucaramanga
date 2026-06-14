@@ -331,6 +331,8 @@ export class EventPublicationService {
     return {
       draftId: draft.id,
       title: draft.title,
+      summary: draft.summary,
+      description: draft.description,
       organizerProfileId: draft.organizerProfileId,
       publicationCaseId: publicationCase?.id ?? null,
       publicationCaseStatus: publicationCase?.status ?? null,

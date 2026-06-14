@@ -1208,6 +1208,8 @@ button {
 
 .workspace-shell {
   min-height: 100dvh;
+  height: 100dvh;
+  overflow: auto;
   padding: 24px;
   background:
     radial-gradient(circle at top, rgba(255, 90, 31, 0.05), transparent 24%),
@@ -1331,13 +1333,20 @@ button {
 }
 
 .workspace-field input,
-.workspace-field select {
+.workspace-field select,
+.workspace-field textarea {
   min-height: 48px;
   padding: 0 14px;
   border-radius: 14px;
   border: 1px solid rgba(229, 226, 225, 0.9);
   background: rgba(255, 255, 255, 0.95);
   color: var(--text-primary);
+}
+
+.workspace-field textarea {
+  padding: 12px 14px;
+  resize: vertical;
+  line-height: 1.5;
 }
 
 .workspace-button {
@@ -1352,6 +1361,160 @@ button {
 .workspace-button--primary {
   color: #fff;
   background: linear-gradient(135deg, var(--brand) 0%, var(--brand-strong) 100%);
+}
+
+.workspace-button--secondary {
+  color: var(--text-secondary);
+  background: var(--surface-soft);
+}
+
+.workspace-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.organizer-workspace {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(260px, 0.75fr) minmax(420px, 1.45fr) minmax(280px, 0.8fr);
+  align-items: start;
+}
+
+.organizer-workspace__sidebar,
+.organizer-workspace__status {
+  position: sticky;
+  top: 18px;
+}
+
+.organizer-workspace__sidebar {
+  display: grid;
+  gap: 16px;
+}
+
+.draft-list {
+  display: grid;
+  gap: 10px;
+  max-height: calc(100dvh - 310px);
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.draft-list__item {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  min-height: 70px;
+  padding: 14px;
+  text-align: left;
+  border-radius: 16px;
+  border: 1px solid rgba(229, 226, 225, 0.85);
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--text-primary);
+}
+
+.draft-list__item.is-selected {
+  border-color: rgba(255, 90, 31, 0.45);
+  box-shadow: 0 8px 20px rgba(255, 90, 31, 0.1);
+}
+
+.draft-list__title {
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.draft-list__meta {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.organizer-form {
+  margin-top: 18px;
+}
+
+.organizer-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.draft-status {
+  display: grid;
+  gap: 12px;
+  margin: 18px 0 0;
+}
+
+.draft-status div {
+  display: grid;
+  gap: 5px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: var(--surface-muted);
+  border: 1px solid rgba(229, 226, 225, 0.72);
+}
+
+.draft-status dt {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.draft-status dd {
+  margin: 0;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+
+.workspace-notice {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border-radius: 16px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.workspace-notice--success {
+  color: #006e2a;
+  background: rgba(0, 200, 83, 0.12);
+  border: 1px solid rgba(0, 200, 83, 0.18);
+}
+
+.workspace-notice--error {
+  color: #8d1f00;
+  background: rgba(174, 50, 0, 0.1);
+  border: 1px solid rgba(174, 50, 0, 0.16);
+}
+
+.validation-panel {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.validation-panel h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.validation-panel ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 20px;
+  color: #8d1f00;
+}
+
+.validation-panel__empty {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.5;
 }
 
 .loading-shell {
@@ -1499,6 +1662,15 @@ button {
   .discovery-shell__content.is-list-active.is-success .discovery-shell__map {
     display: none;
   }
+
+  .organizer-workspace {
+    grid-template-columns: minmax(260px, 0.85fr) minmax(420px, 1.15fr);
+  }
+
+  .organizer-workspace__status {
+    position: static;
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 720px) {
@@ -1611,6 +1783,27 @@ button {
 
   .workspace-form {
     min-width: 0;
+  }
+
+  .organizer-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .organizer-workspace__sidebar,
+  .organizer-workspace__status {
+    position: static;
+  }
+
+  .draft-list {
+    max-height: none;
+  }
+
+  .organizer-actions {
+    align-items: stretch;
+  }
+
+  .organizer-actions .workspace-button {
+    width: 100%;
   }
 
   .empty-state-illustration,

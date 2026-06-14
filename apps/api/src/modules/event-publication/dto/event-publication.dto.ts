@@ -8,6 +8,12 @@ export class DraftResponseDto {
   @ApiProperty({ example: "Borrador de Release 2" })
   title!: string;
 
+  @ApiPropertyOptional({ example: "Resumen corto del evento", nullable: true })
+  summary?: string | null;
+
+  @ApiPropertyOptional({ example: "Descripcion larga del borrador", nullable: true })
+  description?: string | null;
+
   @ApiPropertyOptional({ example: "organizer_scaffold" })
   organizerProfileId?: string | null;
 
