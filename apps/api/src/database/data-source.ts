@@ -7,11 +7,15 @@ import { PublicationCaseEntity } from "../modules/event-publication/entities/pub
 import { EventLocationEntity } from "../modules/geolocation-place/entities/event-location.entity.js";
 import { ModerationCaseEntity } from "../modules/moderation-trust/entities/moderation-case.entity.js";
 import { ModerationDecisionEntity } from "../modules/moderation-trust/entities/moderation-decision.entity.js";
+import { ReportCaseEntity } from "../modules/moderation-trust/entities/report-case.entity.js";
+import { ReportSignalEntity } from "../modules/moderation-trust/entities/report-signal.entity.js";
+import { EscalationEntity } from "../modules/moderation-trust/entities/escalation.entity.js";
 import { ZoneEntity } from "../modules/geolocation-place/entities/zone.entity.js";
 import { Release11710000000000 } from "./migrations/1710000000000-release-1-initial.js";
 import { Release21725000000000 } from "./migrations/1725000000000-release-2-publication.js";
 import { Release21726000000000 } from "./migrations/1726000000000-release-2-submission-control.js";
 import { Release21727000000000 } from "./migrations/1727000000000-release-2-moderation-queue.js";
+import { Release21728000000000 } from "./migrations/1728000000000-release-2-trust-resolution.js";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -28,8 +32,17 @@ export const AppDataSource = new DataSource({
     EventDraftEntity,
     PublicationCaseEntity,
     ModerationCaseEntity,
-    ModerationDecisionEntity
+    ModerationDecisionEntity,
+    ReportCaseEntity,
+    ReportSignalEntity,
+    EscalationEntity
   ],
-  migrations: [Release11710000000000, Release21725000000000, Release21726000000000, Release21727000000000],
+  migrations: [
+    Release11710000000000,
+    Release21725000000000,
+    Release21726000000000,
+    Release21727000000000,
+    Release21728000000000
+  ],
   synchronize: false
 });

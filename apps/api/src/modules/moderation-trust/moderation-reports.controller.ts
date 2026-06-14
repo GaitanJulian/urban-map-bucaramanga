@@ -3,8 +3,9 @@ import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestj
 import { ModerationTrustService } from "./moderation-trust.service.js";
 import {
   CreateReportRequestDto,
-  ReportResponseDto,
-  ReportTriageResponseDto
+  ReportActionRequestDto,
+  ReportActionResponseDto,
+  ReportResponseDto
 } from "./dto/moderation-trust.dto.js";
 
 @ApiTags("Moderation Trust")
@@ -16,7 +17,7 @@ export class ModerationReportsController {
   @Get()
   @ApiOperation({ summary: "List report cases scaffold" })
   @ApiOkResponse({ type: ReportResponseDto, isArray: true })
-  list(): ReportResponseDto[] {
+  list(): Promise<ReportResponseDto[]> {
     return this.moderationTrustService.listReports();
   }
 
@@ -24,7 +25,7 @@ export class ModerationReportsController {
   @Get(":reportId")
   @ApiOperation({ summary: "Get report case scaffold" })
   @ApiOkResponse({ type: ReportResponseDto })
-  get(@Param("reportId") reportId: string): ReportResponseDto {
+  get(@Param("reportId") reportId: string): Promise<ReportResponseDto> {
     return this.moderationTrustService.getReport(reportId);
   }
 
@@ -32,31 +33,47 @@ export class ModerationReportsController {
   @Post()
   @ApiOperation({ summary: "Create protected report scaffold" })
   @ApiCreatedResponse({ type: ReportResponseDto })
-  create(@Body() body: CreateReportRequestDto): ReportResponseDto {
-    return this.moderationTrustService.createReport(body.intakeSource);
+  create(@Body() body: CreateReportRequestDto): Promise<ReportResponseDto> {
+    return this.moderationTrustService.createReport(body);
   }
 
   @Version("2")
   @Post(":reportId/triage")
   @ApiOperation({ summary: "Triage report scaffold" })
-  @ApiOkResponse({ type: ReportTriageResponseDto })
-  triage(@Param("reportId") reportId: string): ReportTriageResponseDto {
-    return this.moderationTrustService.triageReport(reportId);
+  @ApiOkResponse({ type: ReportActionResponseDto })
+  triage(@Param("reportId") reportId: string, @Body() body: ReportActionRequestDto): Promise<ReportActionResponseDto> {
+    return this.moderationTrustService.triageReport(reportId, body);
   }
 
   @Version("2")
   @Post(":reportId/resolve")
   @ApiOperation({ summary: "Resolve report scaffold" })
-  @ApiOkResponse({ type: ReportTriageResponseDto })
-  resolve(@Param("reportId") reportId: string): ReportTriageResponseDto {
-    return this.moderationTrustService.resolveReport(reportId);
+  @ApiOkResponse({ type: ReportActionResponseDto })
+  resolve(@Param("reportId") reportId: string, @Body() body: ReportActionRequestDto): Promise<ReportActionResponseDto> {
+    return this.moderationTrustService.resolveReport(reportId, body);
   }
 
   @Version("2")
   @Post(":reportId/dismiss")
   @ApiOperation({ summary: "Dismiss report scaffold" })
-  @ApiOkResponse({ type: ReportTriageResponseDto })
-  dismiss(@Param("reportId") reportId: string): ReportTriageResponseDto {
-    return this.moderationTrustService.dismissReport(reportId);
+  @ApiOkResponse({ type: ReportActionResponseDto })
+  dismiss(@Param("reportId") reportId: string, @Body() body: ReportActionRequestDto): Promise<ReportActionResponseDto> {
+    return this.moderationTrustService.dismissReport(reportId, body);
+  }
+
+  @Version("2")
+  @Post(":reportId/hide")
+  @ApiOperation({ summary: "Hide report target scaffold" })
+  @ApiOkResponse({ type: ReportActionResponseDto })
+  hide(@Param("reportId") reportId: string, @Body() body: ReportActionRequestDto): Promise<ReportActionResponseDto> {
+    return this.moderationTrustService.hideReport(reportId, body);
+  }
+
+  @Version("2")
+  @Post(":reportId/escalate")
+  @ApiOperation({ summary: "Escalate report scaffold" })
+  @ApiOkResponse({ type: ReportActionResponseDto })
+  escalate(@Param("reportId") reportId: string, @Body() body: ReportActionRequestDto): Promise<ReportActionResponseDto> {
+    return this.moderationTrustService.escalateReport(reportId, body);
   }
 }

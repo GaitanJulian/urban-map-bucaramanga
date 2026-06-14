@@ -3,13 +3,26 @@ import { InjectRepository } from "@nestjs/typeorm";
 import type { ModerationOutcome } from "@umb/shared";
 import { randomUUID } from "node:crypto";
 import { In, Repository } from "typeorm";
+import { EventEntity } from "../event-discovery/entities/event.entity.js";
 import { PublicationCaseEntity } from "../event-publication/entities/publication-case.entity.js";
 import { EventDraftEntity } from "../event-publication/entities/event-draft.entity.js";
-import { ModerationCaseDecisionRequestDto, ModerationCaseDecisionResponseDto, ModerationCaseResponseDto } from "./dto/moderation-trust.dto.js";
+import {
+  CreateReportRequestDto,
+  ModerationCaseDecisionRequestDto,
+  ModerationCaseDecisionResponseDto,
+  ModerationCaseResponseDto,
+  ReportActionRequestDto,
+  ReportActionResponseDto,
+  ReportResponseDto
+} from "./dto/moderation-trust.dto.js";
+import { EscalationEntity } from "./entities/escalation.entity.js";
 import { ModerationCaseEntity } from "./entities/moderation-case.entity.js";
 import { ModerationDecisionEntity } from "./entities/moderation-decision.entity.js";
+import { ReportCaseEntity } from "./entities/report-case.entity.js";
+import { ReportSignalEntity } from "./entities/report-signal.entity.js";
 
 type PublicationCaseStatus = "submitted" | "in_review" | "approved" | "rejected" | "changes_requested" | "hidden" | "escalated" | "cancelled";
+type ReportStatus = "open" | "triaged" | "in_review" | "waiting_correction" | "resolved" | "dismissed" | "hidden" | "escalated";
 
 @Injectable()
 export class ModerationTrustService {
@@ -21,7 +34,15 @@ export class ModerationTrustService {
     @InjectRepository(PublicationCaseEntity)
     private readonly publicationCaseRepository: Repository<PublicationCaseEntity>,
     @InjectRepository(EventDraftEntity)
-    private readonly draftRepository: Repository<EventDraftEntity>
+    private readonly draftRepository: Repository<EventDraftEntity>,
+    @InjectRepository(ReportCaseEntity)
+    private readonly reportCaseRepository: Repository<ReportCaseEntity>,
+    @InjectRepository(ReportSignalEntity)
+    private readonly reportSignalRepository: Repository<ReportSignalEntity>,
+    @InjectRepository(EscalationEntity)
+    private readonly escalationRepository: Repository<EscalationEntity>,
+    @InjectRepository(EventEntity)
+    private readonly eventRepository: Repository<EventEntity>
   ) {}
 
   async listCases(): Promise<ModerationCaseResponseDto[]> {
@@ -36,13 +57,13 @@ export class ModerationTrustService {
       }
     });
 
-    return Promise.all(cases.map((moderationCase) => this.toResponse(moderationCase)));
+    return Promise.all(cases.map((moderationCase) => this.toModerationCaseResponse(moderationCase)));
   }
 
   async getCase(caseId: string): Promise<ModerationCaseResponseDto> {
     await this.syncPendingCases();
-    const moderationCase = await this.findCaseOrFail(caseId);
-    return this.toResponse(moderationCase);
+    const moderationCase = await this.findModerationCaseOrFail(caseId);
+    return this.toModerationCaseResponse(moderationCase);
   }
 
   async decideCase(
@@ -50,16 +71,13 @@ export class ModerationTrustService {
     outcome: ModerationOutcome,
     body: ModerationCaseDecisionRequestDto
   ): Promise<ModerationCaseDecisionResponseDto> {
-    const moderationCase = await this.findCaseOrFail(caseId);
+    const moderationCase = await this.findModerationCaseOrFail(caseId);
 
     if (moderationCase.status === "resolved") {
       throw new BadRequestException(`Moderation case ${caseId} is already resolved.`);
     }
 
-    const reason = this.normalizeReason(body.reason);
-    if (["rejected", "needs_correction", "hidden", "escalated"].includes(outcome) && !reason) {
-      throw new BadRequestException("A reason is required for this moderation outcome.");
-    }
+    const reason = this.normalizeRequiredText(body.reason, "reason");
 
     const publicationCase = await this.findPublicationCaseOrFail(moderationCase.publicationCaseId);
     const draft = await this.findDraftOrFail(publicationCase.eventDraftId);
@@ -69,7 +87,6 @@ export class ModerationTrustService {
     moderationCase.decisionReason = reason;
     moderationCase.reviewedAt = new Date();
     moderationCase.updatedAt = new Date();
-
     await this.moderationCaseRepository.save(moderationCase);
 
     const decision = this.moderationDecisionRepository.create({
@@ -92,6 +109,15 @@ export class ModerationTrustService {
     draft.updatedAt = new Date();
     await this.draftRepository.save(draft);
 
+    if (outcome === "escalated") {
+      await this.createEscalation({
+        moderationCaseId: moderationCase.id,
+        reportCaseId: null,
+        reason,
+        escalatedByActorAccountId: null
+      });
+    }
+
     return {
       caseId: moderationCase.id,
       publicationCaseId: publicationCase.id,
@@ -102,52 +128,142 @@ export class ModerationTrustService {
     };
   }
 
-  listReports() {
-    return [
-      {
-        reportId: "report_scaffold",
-        status: "open",
-        triagePriority: "normal"
+  async listReports(): Promise<ReportResponseDto[]> {
+    const reports = await this.reportCaseRepository.find({
+      order: {
+        createdAt: "DESC"
       }
-    ];
+    });
+
+    return Promise.all(reports.map((report) => this.toReportResponse(report)));
   }
 
-  getReport(reportId: string) {
-    return {
-      reportId,
+  async getReport(reportId: string): Promise<ReportResponseDto> {
+    const report = await this.findReportOrFail(reportId);
+    return this.toReportResponse(report);
+  }
+
+  async createReport(body: CreateReportRequestDto): Promise<ReportResponseDto> {
+    const targetEvent = await this.findEventOrFail(body.targetEventId);
+    if (targetEvent.visibilityState !== "visible") {
+      throw new BadRequestException(`Event ${body.targetEventId} is not visible and cannot be reported.`);
+    }
+    const reason = this.normalizeRequiredText(body.reason, "reason");
+    const description = this.normalizeRequiredText(body.description, "description");
+
+    const report = this.reportCaseRepository.create({
+      id: this.createScopedId("report"),
+      targetEventId: targetEvent.id,
+      intakeActorAccountId: body.intakeActorAccountId?.trim() || null,
+      reporterActorAccountId: null,
+      reason,
+      decisionReason: null,
       status: "open",
-      triagePriority: "normal"
-    };
+      triagePriority: "normal",
+      resolvedAt: null
+    });
+    await this.reportCaseRepository.save(report);
+
+    await this.reportSignalRepository.save(
+      this.reportSignalRepository.create({
+        id: this.createScopedId("signal"),
+        reportCaseId: report.id,
+        description,
+        evidenceRef: body.evidenceRef?.trim() || null
+      })
+    );
+
+    return this.toReportResponse(report);
   }
 
-  createReport(intakeSource: string) {
-    return {
-      reportId: "report_scaffold",
-      intakeSource,
-      status: "open",
-      triagePriority: "normal"
-    };
+  async triageReport(reportId: string, body: ReportActionRequestDto): Promise<ReportActionResponseDto> {
+    const report = await this.findReportOrFail(reportId);
+    this.ensureReportNotFinal(report);
+    const reason = this.normalizeRequiredText(body.reason, "reason");
+
+    report.status = "triaged";
+    report.decisionReason = reason;
+    report.updatedAt = new Date();
+    await this.reportCaseRepository.save(report);
+
+    await this.appendReportSignal(report.id, reason, null);
+
+    return this.toReportActionResponse(report);
   }
 
-  triageReport(reportId: string) {
-    return {
-      reportId,
-      status: "triaged"
-    };
+  async resolveReport(reportId: string, body: ReportActionRequestDto): Promise<ReportActionResponseDto> {
+    const report = await this.findReportOrFail(reportId);
+    this.ensureReportNotFinal(report);
+    const reason = this.normalizeRequiredText(body.reason, "reason");
+
+    report.status = "resolved";
+    report.decisionReason = reason;
+    report.resolvedAt = new Date();
+    report.updatedAt = new Date();
+    await this.reportCaseRepository.save(report);
+
+    await this.appendReportSignal(report.id, reason, null);
+
+    return this.toReportActionResponse(report);
   }
 
-  resolveReport(reportId: string) {
-    return {
-      reportId,
-      status: "resolved"
-    };
+  async dismissReport(reportId: string, body: ReportActionRequestDto): Promise<ReportActionResponseDto> {
+    const report = await this.findReportOrFail(reportId);
+    this.ensureReportNotFinal(report);
+    const reason = this.normalizeRequiredText(body.reason, "reason");
+
+    report.status = "dismissed";
+    report.decisionReason = reason;
+    report.resolvedAt = new Date();
+    report.updatedAt = new Date();
+    await this.reportCaseRepository.save(report);
+
+    await this.appendReportSignal(report.id, reason, null);
+
+    return this.toReportActionResponse(report);
   }
 
-  dismissReport(reportId: string) {
-    return {
-      reportId,
-      status: "dismissed"
-    };
+  async hideReport(reportId: string, body: ReportActionRequestDto): Promise<ReportActionResponseDto> {
+    const report = await this.findReportOrFail(reportId);
+    this.ensureReportNotFinal(report);
+    const reason = this.normalizeRequiredText(body.reason, "reason");
+    const targetEvent = await this.findEventOrFail(report.targetEventId);
+
+    report.status = "hidden";
+    report.decisionReason = reason;
+    report.resolvedAt = new Date();
+    report.updatedAt = new Date();
+    await this.reportCaseRepository.save(report);
+
+    targetEvent.visibilityState = "hidden";
+    targetEvent.updatedAt = new Date();
+    await this.eventRepository.save(targetEvent);
+
+    await this.appendReportSignal(report.id, reason, null);
+
+    return this.toReportActionResponse(report);
+  }
+
+  async escalateReport(reportId: string, body: ReportActionRequestDto): Promise<ReportActionResponseDto> {
+    const report = await this.findReportOrFail(reportId);
+    this.ensureReportNotFinal(report);
+    const reason = this.normalizeRequiredText(body.reason, "reason");
+
+    report.status = "escalated";
+    report.decisionReason = reason;
+    report.resolvedAt = new Date();
+    report.updatedAt = new Date();
+    await this.reportCaseRepository.save(report);
+
+    await this.appendReportSignal(report.id, reason, null);
+    await this.createEscalation({
+      moderationCaseId: null,
+      reportCaseId: report.id,
+      reason,
+      escalatedByActorAccountId: report.intakeActorAccountId
+    });
+
+    return this.toReportActionResponse(report);
   }
 
   private async syncPendingCases(): Promise<void> {
@@ -187,7 +303,7 @@ export class ModerationTrustService {
     }
   }
 
-  private async findCaseOrFail(caseId: string): Promise<ModerationCaseEntity> {
+  private async findModerationCaseOrFail(caseId: string): Promise<ModerationCaseEntity> {
     const moderationCase = await this.moderationCaseRepository.findOne({ where: { id: caseId } });
     if (!moderationCase) {
       throw new NotFoundException(`Moderation case ${caseId} not found.`);
@@ -214,7 +330,25 @@ export class ModerationTrustService {
     return draft;
   }
 
-  private async toResponse(moderationCase: ModerationCaseEntity): Promise<ModerationCaseResponseDto> {
+  private async findReportOrFail(reportId: string): Promise<ReportCaseEntity> {
+    const report = await this.reportCaseRepository.findOne({ where: { id: reportId } });
+    if (!report) {
+      throw new NotFoundException(`Report ${reportId} not found.`);
+    }
+
+    return report;
+  }
+
+  private async findEventOrFail(eventId: string): Promise<EventEntity> {
+    const event = await this.eventRepository.findOne({ where: { id: eventId } });
+    if (!event) {
+      throw new NotFoundException(`Event ${eventId} not found.`);
+    }
+
+    return event;
+  }
+
+  private async toModerationCaseResponse(moderationCase: ModerationCaseEntity): Promise<ModerationCaseResponseDto> {
     const publicationCase = await this.findPublicationCaseOrFail(moderationCase.publicationCaseId);
     const draft = await this.findDraftOrFail(publicationCase.eventDraftId);
 
@@ -228,6 +362,70 @@ export class ModerationTrustService {
       decisionOutcome: moderationCase.decisionOutcome as ModerationOutcome | null,
       decisionReason: moderationCase.decisionReason
     };
+  }
+
+  private async toReportResponse(report: ReportCaseEntity): Promise<ReportResponseDto> {
+    const targetEvent = await this.findEventOrFail(report.targetEventId);
+    const signals = await this.reportSignalRepository.find({
+      where: { reportCaseId: report.id },
+      order: { createdAt: "ASC" }
+    });
+
+    return {
+      reportId: report.id,
+      targetEventId: report.targetEventId,
+      targetEventTitle: targetEvent.title,
+      status: report.status,
+      triagePriority: report.triagePriority,
+      reason: report.reason,
+      decisionReason: report.decisionReason,
+      resolvedAt: report.resolvedAt ? report.resolvedAt.toISOString() : null,
+      signals: signals.map((signal) => ({
+        signalId: signal.id,
+        description: signal.description,
+        evidenceRef: signal.evidenceRef,
+        createdAt: signal.createdAt.toISOString()
+      }))
+    };
+  }
+
+  private toReportActionResponse(report: ReportCaseEntity): ReportActionResponseDto {
+    return {
+      reportId: report.id,
+      status: report.status,
+      triagePriority: report.triagePriority,
+      decisionReason: report.decisionReason
+    };
+  }
+
+  private async appendReportSignal(reportCaseId: string, description: string, evidenceRef: string | null): Promise<void> {
+    await this.reportSignalRepository.save(
+      this.reportSignalRepository.create({
+        id: this.createScopedId("signal"),
+        reportCaseId,
+        description,
+        evidenceRef
+      })
+    );
+  }
+
+  private async createEscalation(input: {
+    moderationCaseId: string | null;
+    reportCaseId: string | null;
+    reason: string;
+    escalatedByActorAccountId: string | null;
+  }): Promise<void> {
+    await this.escalationRepository.save(
+      this.escalationRepository.create({
+        id: this.createScopedId("escalation"),
+        moderationCaseId: input.moderationCaseId,
+        reportCaseId: input.reportCaseId,
+        escalatedByActorAccountId: input.escalatedByActorAccountId,
+        reason: input.reason,
+        status: "open",
+        resolvedAt: null
+      })
+    );
   }
 
   private resolvePublicationCaseStatus(outcome: ModerationOutcome): PublicationCaseStatus {
@@ -270,13 +468,23 @@ export class ModerationTrustService {
     }
   }
 
-  private normalizeReason(value: string | undefined): string | null {
+  private ensureReportNotFinal(report: ReportCaseEntity): void {
+    if (["resolved", "dismissed", "hidden", "escalated"].includes(report.status)) {
+      throw new BadRequestException(`Report ${report.id} is already in a final state.`);
+    }
+  }
+
+  private normalizeRequiredText(value: string | undefined, fieldName: string): string {
     if (value === undefined) {
-      return null;
+      throw new BadRequestException(`${fieldName} is required.`);
     }
 
     const normalized = value.trim();
-    return normalized.length > 0 ? normalized : null;
+    if (!normalized) {
+      throw new BadRequestException(`${fieldName} is required.`);
+    }
+
+    return normalized;
   }
 
   private createScopedId(prefix: string): string {
