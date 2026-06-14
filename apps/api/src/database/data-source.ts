@@ -16,6 +16,7 @@ import { Release21725000000000 } from "./migrations/1725000000000-release-2-publ
 import { Release21726000000000 } from "./migrations/1726000000000-release-2-submission-control.js";
 import { Release21727000000000 } from "./migrations/1727000000000-release-2-moderation-queue.js";
 import { Release21728000000000 } from "./migrations/1728000000000-release-2-trust-resolution.js";
+import { Release21729000000000 } from "./migrations/1729000000000-release-2-discovery-provenance.js";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -42,7 +43,8 @@ export const AppDataSource = new DataSource({
     Release21725000000000,
     Release21726000000000,
     Release21727000000000,
-    Release21728000000000
+    Release21728000000000,
+    Release21729000000000
   ],
   synchronize: false
 });

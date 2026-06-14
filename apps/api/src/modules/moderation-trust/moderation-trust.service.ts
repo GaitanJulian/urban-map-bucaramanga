@@ -109,6 +109,14 @@ export class ModerationTrustService {
     draft.updatedAt = new Date();
     await this.draftRepository.save(draft);
 
+    if (outcome === "approved") {
+      await this.projectApprovedPublication(publicationCase, draft);
+    }
+
+    if ((outcome === "rejected" || outcome === "hidden") && moderationCase.targetEventId) {
+      await this.hideProjectedEvent(moderationCase.targetEventId);
+    }
+
     if (outcome === "escalated") {
       await this.createEscalation({
         moderationCaseId: moderationCase.id,
@@ -235,9 +243,7 @@ export class ModerationTrustService {
     report.updatedAt = new Date();
     await this.reportCaseRepository.save(report);
 
-    targetEvent.visibilityState = "hidden";
-    targetEvent.updatedAt = new Date();
-    await this.eventRepository.save(targetEvent);
+    await this.hideProjectedEvent(targetEvent.id);
 
     await this.appendReportSignal(report.id, reason, null);
 
@@ -426,6 +432,110 @@ export class ModerationTrustService {
         resolvedAt: null
       })
     );
+  }
+
+  private async projectApprovedPublication(publicationCase: PublicationCaseEntity, draft: EventDraftEntity): Promise<EventEntity> {
+    const existingEvent = await this.findProjectedEventByDraftId(draft.id);
+    const projectedEvent = this.buildProjectedEvent(existingEvent, publicationCase.id, draft);
+
+    if (existingEvent) {
+      Object.assign(existingEvent, projectedEvent);
+      existingEvent.updatedAt = new Date();
+      return this.eventRepository.save(existingEvent);
+    }
+
+    return this.eventRepository.save(this.eventRepository.create(projectedEvent));
+  }
+
+  private async hideProjectedEvent(eventId: string): Promise<void> {
+    const event = await this.findEventOrFail(eventId);
+    event.visibilityState = "hidden";
+    event.updatedAt = new Date();
+    await this.eventRepository.save(event);
+  }
+
+  private async findProjectedEventByDraftId(draftId: string): Promise<EventEntity | null> {
+    return this.eventRepository.findOne({
+      where: { sourceDraftId: draftId }
+    });
+  }
+
+  private buildProjectedEvent(
+    existingEvent: EventEntity | null,
+    sourcePublicationCaseId: string,
+    draft: EventDraftEntity
+  ): Partial<EventEntity> {
+    const now = new Date();
+    const defaultStartsAt = new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7);
+    const defaultEndsAt = new Date(defaultStartsAt.getTime() + 1000 * 60 * 60 * 3);
+    const startsAt = draft.startsAt ?? defaultStartsAt;
+    const endsAt = draft.endsAt ?? defaultEndsAt;
+    const title = this.normalizePublicField(draft.title, "Evento publicado");
+    const summary = this.normalizePublicField(draft.summary, "Resumen del evento");
+    const description = this.normalizePublicField(draft.description, summary);
+    const categoryId = draft.categoryId ?? "cat_music";
+    const locationId = draft.locationId ?? "loc_001";
+    const zoneId = draft.zoneId ?? "zone_cabecera";
+    const isFree = draft.isFree ?? false;
+    const costLabel = this.normalizePublicField(draft.costLabel, isFree ? "Gratis" : "Pago");
+    const status = this.resolveEventLifecycleStatus(startsAt, endsAt);
+    const slugBase = this.slugify(title);
+
+    return {
+      id: existingEvent?.id ?? this.createScopedId("evt"),
+      title,
+      slug: existingEvent?.slug ?? `${slugBase}-${draft.id.slice(-6)}`,
+      summary,
+      description,
+      categoryId,
+      locationId,
+      zoneId,
+      status,
+      visibilityState: "visible",
+      startsAt,
+      endsAt,
+      costLabel,
+      isFree,
+      isApproximateLocation: existingEvent?.isApproximateLocation ?? true,
+      isCurated: true,
+      sourceDraftId: draft.id,
+      sourcePublicationCaseId,
+      createdAt: existingEvent?.createdAt ?? new Date(),
+      updatedAt: new Date()
+    };
+  }
+
+  private resolveEventLifecycleStatus(startsAt: Date, endsAt: Date): EventEntity["status"] {
+    const now = new Date();
+
+    if (endsAt.getTime() < now.getTime()) {
+      return "ended";
+    }
+
+    if (startsAt.getTime() <= now.getTime()) {
+      return "live";
+    }
+
+    return "upcoming";
+  }
+
+  private normalizePublicField(value: string | null | undefined, fallback: string): string {
+    if (typeof value !== "string") {
+      return fallback;
+    }
+
+    const normalized = value.trim();
+    return normalized.length > 0 ? normalized : fallback;
+  }
+
+  private slugify(value: string): string {
+    return value
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 140) || "evento";
   }
 
   private resolvePublicationCaseStatus(outcome: ModerationOutcome): PublicationCaseStatus {

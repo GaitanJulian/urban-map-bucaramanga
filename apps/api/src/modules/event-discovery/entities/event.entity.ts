@@ -54,6 +54,12 @@ export class EventEntity {
   @Column({ type: "boolean", name: "is_curated", default: true })
   isCurated!: boolean;
 
+  @Column({ type: "varchar", length: 64, name: "source_draft_id", nullable: true })
+  sourceDraftId!: string | null;
+
+  @Column({ type: "varchar", length: 64, name: "source_publication_case_id", nullable: true })
+  sourcePublicationCaseId!: string | null;
+
   @Column({ type: "timestamptz", name: "created_at", default: () => "CURRENT_TIMESTAMP" })
   createdAt!: Date;
 

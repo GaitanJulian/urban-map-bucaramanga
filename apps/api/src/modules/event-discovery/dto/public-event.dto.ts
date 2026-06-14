@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class EventCategoryDto {
   @ApiProperty({ example: "music" })
@@ -81,4 +81,10 @@ export class PublicEventDto {
 
   @ApiProperty({ example: false })
   isApproximateLocation!: boolean;
+
+  @ApiPropertyOptional({ example: "draft_scaffold", nullable: true })
+  sourceDraftId?: string | null;
+
+  @ApiPropertyOptional({ example: "publication_case_scaffold", nullable: true })
+  sourcePublicationCaseId?: string | null;
 }
