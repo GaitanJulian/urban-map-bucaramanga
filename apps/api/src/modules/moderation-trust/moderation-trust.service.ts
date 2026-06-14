@@ -403,6 +403,8 @@ export class ModerationTrustService {
       reason: report.reason,
       decisionReason: report.decisionReason,
       resolvedAt: report.resolvedAt ? report.resolvedAt.toISOString() : null,
+      createdAt: report.createdAt.toISOString(),
+      updatedAt: report.updatedAt.toISOString(),
       signals: signals.map((signal) => ({
         signalId: signal.id,
         description: signal.description,
