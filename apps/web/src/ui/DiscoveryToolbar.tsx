@@ -9,7 +9,7 @@ export function DiscoveryToolbar() {
         </span>
         <div className="brand-copy">
           <h1>Mapa de Eventos Bucaramanga</h1>
-          <p>Descubrimiento publico Release 1</p>
+          <p>Descubrimiento público Release 1</p>
         </div>
       </div>
 

@@ -21,9 +21,9 @@ const DEFAULT_FILTERS = {
     radiusKm: ""
 };
 const CATEGORY_OPTIONS = [
-    { value: "cat_music", label: "Musica" },
+    { value: "cat_music", label: "Música" },
     { value: "cat_culture", label: "Cultura" },
-    { value: "cat_food", label: "Gastronomia" }
+    { value: "cat_food", label: "Gastronomía" }
 ];
 const ZONE_OPTIONS = [
     { value: "zone_cabecera", label: "Cabecera del Llano" },

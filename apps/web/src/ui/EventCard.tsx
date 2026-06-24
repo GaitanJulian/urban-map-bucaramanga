@@ -51,7 +51,7 @@ function getAccent(categoryId: string): string {
 }
 
 function getStatusLabel(status: PublicEvent["status"]): string {
-  return status === "live" ? "Vigente" : "Proximo";
+  return status === "live" ? "Vigente" : "Próximo";
 }
 
 function getStatusClass(status: PublicEvent["status"]): string {
@@ -113,7 +113,7 @@ export function EventCard({ event, isSelected = false, onSelect }: EventCardProp
 
         <div className="event-card__footer">
           <span className="chip chip--zone">{event.zone.name}</span>
-          {approximate ? <span className="chip chip--approximate">Ubicacion aproximada</span> : null}
+          {approximate ? <span className="chip chip--approximate">Ubicación aproximada</span> : null}
         </div>
       </div>
     </article>

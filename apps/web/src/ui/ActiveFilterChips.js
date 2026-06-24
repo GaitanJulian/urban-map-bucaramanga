@@ -39,7 +39,7 @@ function buildChips(filters, onPatch, categoryLabels, zoneLabels) {
     if (filters.categoryId.trim().length > 0) {
         chips.push({
             key: "categoryId",
-            label: `Categoria: ${categoryLabels[filters.categoryId] ?? filters.categoryId}`,
+            label: `Categoría: ${categoryLabels[filters.categoryId] ?? filters.categoryId}`,
             onRemove: () => onPatch({ categoryId: "" })
         });
     }

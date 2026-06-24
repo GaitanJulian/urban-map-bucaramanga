@@ -44,7 +44,7 @@ function getStatusLabel(status: PublicEvent["status"]): string {
     return "Finalizado";
   }
 
-  return "Proximo";
+  return "Próximo";
 }
 
 export function EventDetailPanel({ event, onClose }: EventDetailPanelProps) {
@@ -84,7 +84,7 @@ export function EventDetailPanel({ event, onClose }: EventDetailPanelProps) {
 
         <div className="event-detail-panel__meta">
           <span className="chip chip--zone">{event.zone.name}</span>
-          {approximate ? <span className="chip chip--approximate">Ubicacion aproximada</span> : null}
+          {approximate ? <span className="chip chip--approximate">Ubicación aproximada</span> : null}
         </div>
 
         <p className="event-detail-panel__summary">{event.summary}</p>
@@ -99,7 +99,7 @@ export function EventDetailPanel({ event, onClose }: EventDetailPanelProps) {
             <dd>{event.location.label}</dd>
           </div>
           <div className="event-detail-panel__field">
-            <dt>Direccion visible</dt>
+            <dt>Dirección visible</dt>
             <dd>{event.location.addressText}</dd>
           </div>
         </dl>

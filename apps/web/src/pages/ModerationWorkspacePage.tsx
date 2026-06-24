@@ -6,7 +6,7 @@ import type { ModerationReport, ReportAction } from "../types/moderationReports"
 import { StatusBadge } from "../ui/StatusBadge";
 import { WorkspaceShell } from "../workspaces/WorkspaceShell";
 
-const APPROVAL_REASON = "Contenido aprobado para publicacion.";
+const APPROVAL_REASON = "Contenido aprobado para publicación.";
 
 type ModerationTab = "cases" | "reports";
 
@@ -35,7 +35,7 @@ function readErrorMessage(error: unknown, fallback: string): string {
 }
 
 function draftTitle(draft: ModerationDraftSnapshot | null | undefined): string {
-  return draft?.title?.trim() || "Borrador sin titulo";
+  return draft?.title?.trim() || "Borrador sin título";
 }
 
 function reportTitle(report: ModerationReport): string {
@@ -95,7 +95,7 @@ export function ModerationWorkspacePage() {
         setSelectedCase(null);
       }
     } catch (error) {
-      setCaseErrorMessage(readErrorMessage(error, "No pudimos cargar la cola de moderacion."));
+      setCaseErrorMessage(readErrorMessage(error, "No pudimos cargar la cola de moderación."));
     } finally {
       setIsCasesLoading(false);
     }
@@ -197,7 +197,7 @@ export function ModerationWorkspacePage() {
 
     const reason = caseReason.trim() || (action === "approve" ? APPROVAL_REASON : "");
     if (!reason) {
-      setCaseErrorMessage("Ingresa un motivo para esta decision.");
+      setCaseErrorMessage("Ingresa un motivo para esta decisión.");
       return;
     }
 
@@ -207,11 +207,11 @@ export function ModerationWorkspacePage() {
 
     try {
       const response = await decideModerationCase(selectedCaseId, action, reason);
-      setCaseNotice(`Decision registrada: ${response.publicationCaseStatus?.replace(/_/g, " ") ?? response.status}.`);
+      setCaseNotice(`Decisión registrada: ${response.publicationCaseStatus?.replace(/_/g, " ") ?? response.status}.`);
       setCaseReason("");
       await loadCases(null);
     } catch (error) {
-      setCaseErrorMessage(readErrorMessage(error, "No pudimos registrar la decision."));
+      setCaseErrorMessage(readErrorMessage(error, "No pudimos registrar la decisión."));
     } finally {
       setIsCaseMutating(false);
     }
@@ -224,7 +224,7 @@ export function ModerationWorkspacePage() {
 
     const reason = reportReason.trim();
     if (!reason) {
-      setReportErrorMessage("Ingresa un motivo para esta accion.");
+      setReportErrorMessage("Ingresa un motivo para esta acción.");
       return;
     }
 
@@ -251,11 +251,11 @@ export function ModerationWorkspacePage() {
 
   return (
     <WorkspaceShell
-      title="Workspace de Moderacion"
-      description="Cola de revision y reportes conectados al backend v2 para decisiones de publicacion y confianza."
+      title="Workspace de Moderación"
+      description="Cola de revisión y reportes conectados al backend v2 para decisiones de publicación y confianza."
       role="moderator"
     >
-      <div className="moderation-tabs" role="tablist" aria-label="Secciones de moderacion">
+      <div className="moderation-tabs" role="tablist" aria-label="Secciones de moderación">
         <button
           type="button"
           role="tab"
@@ -292,7 +292,7 @@ export function ModerationWorkspacePage() {
           <aside className="workspace-card moderation-workspace__queue">
             <div className="workspace-card__copy">
               <h2>Cola pendiente</h2>
-              <p>Casos enviados a revision.</p>
+              <p>Casos enviados a revisión.</p>
             </div>
 
             <button
@@ -331,7 +331,7 @@ export function ModerationWorkspacePage() {
           <article className="workspace-card moderation-workspace__detail">
             <div className="workspace-card__copy">
               <h2>Detalle del caso</h2>
-              <p>Snapshot de publicacion y datos principales del evento.</p>
+              <p>Snapshot de publicación y datos principales del evento.</p>
             </div>
 
             {isCaseDetailLoading ? <div className="workspace-placeholder">Cargando detalle...</div> : null}
@@ -340,27 +340,27 @@ export function ModerationWorkspacePage() {
               <div className="moderation-detail">
                 <dl className="draft-status moderation-detail__meta">
                   <div>
-                    <dt>Publication case</dt>
+                    <dt>Caso de publicación</dt>
                     <dd>{caseDetail.publicationCaseId}</dd>
                   </div>
                   <div>
-                    <dt>Status</dt>
+                    <dt>Estado</dt>
                     <dd>
                       <StatusBadge value={caseDetail.status} />
                     </dd>
                   </div>
                   <div>
-                    <dt>Case status</dt>
+                    <dt>Estado del caso</dt>
                     <dd>
                       <StatusBadge value={caseDetail.publicationCaseStatus} fallback="Sin caso" />
                     </dd>
                   </div>
                   <div>
-                    <dt>Submitted</dt>
+                    <dt>Enviado</dt>
                     <dd>{formatDate(caseDetail.submittedAt)}</dd>
                   </div>
                   <div>
-                    <dt>Created</dt>
+                    <dt>Creado</dt>
                     <dd>{formatDate(caseDetail.createdAt)}</dd>
                   </div>
                 </dl>
@@ -368,13 +368,13 @@ export function ModerationWorkspacePage() {
                 <section className="moderation-event-summary">
                   <h3>{draftTitle(draft)}</h3>
                   <p>{draft?.summary || "Sin resumen"}</p>
-                  <p>{draft?.description || "Sin descripcion"}</p>
+                  <p>{draft?.description || "Sin descripción"}</p>
                 </section>
 
                 <dl className="moderation-event-grid">
                   <div>
-                    <dt>Categoria</dt>
-                    <dd>{draft?.categoryId ?? "Sin categoria"}</dd>
+                    <dt>Categoría</dt>
+                    <dd>{draft?.categoryId ?? "Sin categoría"}</dd>
                   </div>
                   <div>
                     <dt>Zona</dt>
@@ -385,8 +385,8 @@ export function ModerationWorkspacePage() {
                     <dd>{draft?.venueName ?? "Sin lugar"}</dd>
                   </div>
                   <div>
-                    <dt>Direccion</dt>
-                    <dd>{draft?.address ?? "Sin direccion"}</dd>
+                    <dt>Dirección</dt>
+                    <dd>{draft?.address ?? "Sin dirección"}</dd>
                   </div>
                   <div>
                     <dt>Inicio</dt>
@@ -411,8 +411,8 @@ export function ModerationWorkspacePage() {
 
           <aside className="workspace-card moderation-workspace__decision">
             <div className="workspace-card__copy">
-              <h2>Decision</h2>
-              <p>Aprueba, rechaza, solicita correccion, oculta o escala.</p>
+              <h2>Decisión</h2>
+              <p>Aprueba, rechaza, solicita corrección, oculta o escala.</p>
             </div>
 
             <label className="workspace-field moderation-reason" htmlFor="case-decision-reason">
@@ -441,7 +441,7 @@ export function ModerationWorkspacePage() {
                 onClick={() => handleCaseDecision("request-correction")}
                 disabled={!caseDetail || isCaseMutating}
               >
-                Pedir correccion
+                Pedir corrección
               </button>
               <button
                 className="workspace-button workspace-button--danger"
@@ -483,7 +483,7 @@ export function ModerationWorkspacePage() {
           <aside className="workspace-card moderation-workspace__queue">
             <div className="workspace-card__copy">
               <h2>Reportes</h2>
-              <p>Reportes protegidos contra contenido visible.</p>
+              <p>Reportes recibidos sobre contenido visible.</p>
             </div>
 
             <button
@@ -522,7 +522,7 @@ export function ModerationWorkspacePage() {
           <article className="workspace-card moderation-workspace__detail">
             <div className="workspace-card__copy">
               <h2>Detalle del reporte</h2>
-              <p>Senales, objetivo y estado operacional.</p>
+              <p>Señales, objetivo y estado operacional.</p>
             </div>
 
             {isReportDetailLoading ? <div className="workspace-placeholder">Cargando detalle...</div> : null}
@@ -531,31 +531,31 @@ export function ModerationWorkspacePage() {
               <div className="moderation-detail">
                 <dl className="draft-status moderation-detail__meta">
                   <div>
-                    <dt>Report case</dt>
+                    <dt>Caso de reporte</dt>
                     <dd>{reportDetail.reportId}</dd>
                   </div>
                   <div>
-                    <dt>Target event</dt>
+                    <dt>Evento objetivo</dt>
                     <dd>{reportDetail.targetEventId}</dd>
                   </div>
                   <div>
-                    <dt>Status</dt>
+                    <dt>Estado</dt>
                     <dd>
                       <StatusBadge value={reportDetail.status} />
                     </dd>
                   </div>
                   <div>
-                    <dt>Priority</dt>
+                    <dt>Prioridad</dt>
                     <dd>
                       <StatusBadge value={reportDetail.triagePriority} />
                     </dd>
                   </div>
                   <div>
-                    <dt>Created</dt>
+                    <dt>Creado</dt>
                     <dd>{formatDate(reportDetail.createdAt)}</dd>
                   </div>
                   <div>
-                    <dt>Updated</dt>
+                    <dt>Actualizado</dt>
                     <dd>{formatDate(reportDetail.updatedAt)}</dd>
                   </div>
                 </dl>
@@ -563,13 +563,13 @@ export function ModerationWorkspacePage() {
                 <section className="moderation-event-summary">
                   <h3>{reportTitle(reportDetail)}</h3>
                   <p>{reportDetail.reason}</p>
-                  <p>{reportDetail.decisionReason ?? "Sin decision registrada."}</p>
+                  <p>{reportDetail.decisionReason ?? "Sin decisión registrada."}</p>
                 </section>
 
                 <section className="report-signals">
-                  <h3>Signals</h3>
+                  <h3>Señales</h3>
                   {reportDetail.signals.length === 0 ? (
-                    <p className="workspace-placeholder">Sin senales registradas.</p>
+                    <p className="workspace-placeholder">Sin señales registradas.</p>
                   ) : (
                     <ul className="report-signals__list">
                       {reportDetail.signals.map((signal) => (
@@ -592,7 +592,7 @@ export function ModerationWorkspacePage() {
 
           <aside className="workspace-card moderation-workspace__decision">
             <div className="workspace-card__copy">
-              <h2>Accion</h2>
+              <h2>Acción</h2>
               <p>Haz triage, resuelve, descarta, oculta o escala.</p>
             </div>
 

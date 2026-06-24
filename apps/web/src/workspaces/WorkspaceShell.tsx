@@ -9,12 +9,18 @@ interface WorkspaceShellProps {
   children: React.ReactNode;
 }
 
+const ROLE_LABELS: Record<ActorRole, string> = {
+  organizer: "Organizador",
+  moderator: "Moderador",
+  admin: "Administrador"
+};
+
 export function WorkspaceShell({ title, description, role, children }: WorkspaceShellProps) {
   return (
     <div className="workspace-shell">
       <header className="workspace-shell__header">
         <div>
-          <p className="workspace-shell__eyebrow">{role}</p>
+          <p className="workspace-shell__eyebrow">{ROLE_LABELS[role]}</p>
           <h1 className="workspace-shell__title">{title}</h1>
           <p className="workspace-shell__description">{description}</p>
         </div>
@@ -24,7 +30,7 @@ export function WorkspaceShell({ title, description, role, children }: Workspace
             Descubrimiento
           </Link>
           <Link to="/login" className="workspace-shell__nav-link">
-            Login
+            Ingreso
           </Link>
         </nav>
       </header>

@@ -161,7 +161,7 @@ export function DiscoveryMapPanel({
                       <span>{event.location.label}</span>
                       <span>{event.zone.name}</span>
                       {event.isApproximateLocation || event.location.isApproximateLocation ? (
-                        <span>Ubicacion aproximada</span>
+                        <span>Ubicación aproximada</span>
                       ) : null}
                     </div>
                   </Popup>
@@ -185,7 +185,7 @@ export function DiscoveryMapPanel({
         <div>
           <p className="map-panel__title">Mapa de Bucaramanga</p>
           <p className="map-panel__subtitle">
-            {status === "loading" ? "Actualizando eventos visibles..." : `${eventCount} eventos visibles en este universo`}
+            {status === "loading" ? "Actualizando eventos visibles..." : `${eventCount} eventos visibles en el mapa`}
           </p>
         </div>
         <span className="map-panel__subtitle" aria-hidden="true">

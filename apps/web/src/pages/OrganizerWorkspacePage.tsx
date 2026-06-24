@@ -27,9 +27,9 @@ const EMPTY_EDITOR: DraftEditorState = {
 };
 
 const CATEGORY_OPTIONS = [
-  { value: "cat_music", label: "Musica" },
+  { value: "cat_music", label: "Música" },
   { value: "cat_culture", label: "Cultura" },
-  { value: "cat_food", label: "Gastronomia" }
+  { value: "cat_food", label: "Gastronomía" }
 ];
 
 const ZONE_OPTIONS = [
@@ -228,7 +228,7 @@ export function OrganizerWorkspacePage() {
   };
 
   const handleSubmitDraft = async () => {
-    const response = await mutateSelectedDraft((draftId) => submitOrganizerDraft(draftId), "Borrador enviado a revision.");
+    const response = await mutateSelectedDraft((draftId) => submitOrganizerDraft(draftId), "Borrador enviado a revisión.");
 
     if (response) {
       setValidationIssues([]);
@@ -239,7 +239,7 @@ export function OrganizerWorkspacePage() {
   return (
     <WorkspaceShell
       title="Workspace de Organizador"
-      description="Borradores, validacion minima y envio a revision conectados al backend v2."
+      description="Borradores, validación mínima y envío a revisión conectados al backend v2."
       role="organizer"
     >
       <section className="organizer-workspace">
@@ -250,7 +250,7 @@ export function OrganizerWorkspacePage() {
           </div>
 
           <button className="workspace-button workspace-button--primary" type="button" onClick={handleCreateDraft} disabled={isMutating}>
-            Crear draft
+            Crear borrador
           </button>
 
           <div className="draft-list" aria-live="polite">
@@ -265,7 +265,7 @@ export function OrganizerWorkspacePage() {
                 key={draft.draftId}
                 onClick={() => setSelectedDraftId(draft.draftId)}
               >
-                <span className="draft-list__title">{draft.title || "Borrador sin titulo"}</span>
+                <span className="draft-list__title">{draft.title || "Borrador sin título"}</span>
                 <StatusBadge value={draft.publicationStatus} />
               </button>
             ))}
@@ -275,16 +275,16 @@ export function OrganizerWorkspacePage() {
         <article className="workspace-card organizer-workspace__editor">
           <div className="workspace-card__copy">
             <h2>Editor</h2>
-            <p>Datos principales del evento para envio a revision.</p>
+            <p>Datos principales del evento para envío a revisión.</p>
           </div>
 
           {selectedDraft ? (
             <form className="workspace-form organizer-form" onSubmit={(event) => event.preventDefault()}>
               <section className="organizer-form__section">
-                <h3 className="organizer-form__section-title">Informacion basica</h3>
+                <h3 className="organizer-form__section-title">Información básica</h3>
 
                 <label className="workspace-field" htmlFor="draft-title">
-                  <span>Titulo</span>
+                  <span>Título</span>
                   <input
                     id="draft-title"
                     value={editor.title}
@@ -306,29 +306,29 @@ export function OrganizerWorkspacePage() {
                 </label>
 
                 <label className="workspace-field" htmlFor="draft-description">
-                  <span>Descripcion</span>
+                  <span>Descripción</span>
                   <textarea
                     id="draft-description"
                     value={editor.description}
                     onChange={(event) => patchEditor({ description: event.target.value })}
-                    placeholder="Descripcion larga del borrador"
+                    placeholder="Descripción larga del borrador"
                     rows={8}
                   />
                 </label>
               </section>
 
               <section className="organizer-form__section">
-                <h3 className="organizer-form__section-title">Categoria y zona</h3>
+                <h3 className="organizer-form__section-title">Categoría y zona</h3>
 
                 <div className="organizer-form__grid">
                   <label className="workspace-field" htmlFor="draft-category">
-                    <span>Categoria</span>
+                    <span>Categoría</span>
                     <select
                       id="draft-category"
                       value={editor.categoryId}
                       onChange={(event) => patchEditor({ categoryId: event.target.value })}
                     >
-                      <option value="">Selecciona categoria</option>
+                      <option value="">Selecciona categoría</option>
                       {CATEGORY_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>
                           {option.label}
@@ -367,12 +367,12 @@ export function OrganizerWorkspacePage() {
                   </label>
 
                   <label className="workspace-field" htmlFor="draft-address">
-                    <span>Direccion</span>
+                    <span>Dirección</span>
                     <input
                       id="draft-address"
                       value={editor.address}
                       onChange={(event) => patchEditor({ address: event.target.value })}
-                      placeholder="Direccion o referencia"
+                      placeholder="Dirección o referencia"
                       maxLength={280}
                     />
                   </label>
@@ -441,7 +441,7 @@ export function OrganizerWorkspacePage() {
                   Validar
                 </button>
                 <button className="workspace-button workspace-button--primary" type="button" onClick={handleSubmitDraft} disabled={isMutating}>
-                  Enviar a revision
+                  Enviar a revisión
                 </button>
               </div>
             </form>
@@ -453,23 +453,23 @@ export function OrganizerWorkspacePage() {
         <aside className="workspace-card organizer-workspace__status">
           <div className="workspace-card__copy">
             <h2>Estado</h2>
-            <p>Resultado actual del flujo de publicacion.</p>
+            <p>Resultado actual del flujo de publicación.</p>
           </div>
 
           {selectedDraft ? (
             <dl className="draft-status">
               <div>
-                <dt>Publication status</dt>
+                <dt>Estado de publicación</dt>
                 <dd>
                   <StatusBadge value={selectedDraft.publicationStatus} />
                 </dd>
               </div>
               <div>
-                <dt>Publication case</dt>
+                <dt>Caso de publicación</dt>
                 <dd>{selectedDraft.publicationCaseId ?? "Sin caso"}</dd>
               </div>
               <div>
-                <dt>Case status</dt>
+                <dt>Estado del caso</dt>
                 <dd>
                   <StatusBadge value={selectedDraft.publicationCaseStatus} fallback="Sin caso" />
                 </dd>
@@ -483,8 +483,8 @@ export function OrganizerWorkspacePage() {
           {errorMessage ? <p className="workspace-notice workspace-notice--error">{errorMessage}</p> : null}
 
           <section className="validation-panel" aria-live="polite">
-            <h3>Validation issues</h3>
-            {isValid === true ? <p className="validation-panel__empty">Sin issues de validacion.</p> : null}
+            <h3>Problemas de validación</h3>
+            {isValid === true ? <p className="validation-panel__empty">Sin problemas de validación.</p> : null}
             {validationIssues.length > 0 ? (
               <ul>
                 {validationIssues.map((issue) => (
@@ -493,7 +493,7 @@ export function OrganizerWorkspacePage() {
               </ul>
             ) : null}
             {isValid !== true && validationIssues.length === 0 ? (
-              <p className="validation-panel__empty">Valida el borrador para ver issues.</p>
+              <p className="validation-panel__empty">Valida el borrador para ver los problemas detectados.</p>
             ) : null}
           </section>
         </aside>

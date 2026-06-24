@@ -2,21 +2,27 @@ import React from "react";
 import type { ActorRole } from "@umb/shared";
 import { WorkspaceShell } from "../workspaces/WorkspaceShell";
 
+const ROLE_LABELS: Record<ActorRole, string> = {
+  organizer: "Organizador",
+  moderator: "Moderador",
+  admin: "Administrador"
+};
+
 const ROLES: ActorRole[] = ["organizer", "moderator", "admin"];
 
 export function LoginPage() {
   return (
     <WorkspaceShell
       title="Acceso Release 2"
-      description="Scaffold mínimo para organizadores y moderadores autenticados."
+      description="Acceso mínimo para organizadores y moderadores autenticados."
       role="admin"
     >
       <section className="workspace-card workspace-card--login" aria-label="Login mínimo">
         <div className="workspace-card__copy">
           <h2>Ingreso protegido</h2>
           <p>
-            Este espacio es solo un placeholder de Release 2. La autenticación completa se conectará en el siguiente
-            slice.
+            Este espacio es un punto de partida de Release 2. La autenticación completa se conectará en un siguiente
+            slice; por ahora no valida credenciales reales.
           </p>
         </div>
 
@@ -31,7 +37,7 @@ export function LoginPage() {
             <select aria-label="Rol">
               {ROLES.map((role) => (
                 <option key={role} value={role}>
-                  {role}
+                  {ROLE_LABELS[role]}
                 </option>
               ))}
             </select>
