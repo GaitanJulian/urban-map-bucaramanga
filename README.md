@@ -21,9 +21,9 @@ publicación controlada (autoría, moderación y reportes).
 ## Rutas frontend
 
 - `/` - descubrimiento público de eventos (Release 1)
-- `/login` - acceso mínimo a los workspaces (sin autenticación real todavía)
-- `/organizer` - crear, editar, validar y enviar borradores de evento a revisión
-- `/moderation` - cola de publicaciones y gestión de reportes
+- `/login` - inicio de sesión real (Better Auth) para organizador, moderador y administrador
+- `/organizer` - crear, editar, validar y enviar borradores de evento a revisión (requiere sesión de organizador)
+- `/moderation` - cola de publicaciones y gestión de reportes (requiere sesión de moderador)
 
 ## Requisitos
 
@@ -41,11 +41,34 @@ publicación controlada (autoría, moderación y reportes).
    ```powershell
    docker compose up -d postgres
    ```
-4. Ejecuta migraciones y carga datos de ejemplo de Release 1:
+4. Ejecuta migraciones y carga datos de ejemplo de Release 1 y usuarios demo de Identity & Access:
    ```powershell
    npm.cmd run db:migrate --workspace @umb/api
    npm.cmd run db:seed:release1 --workspace @umb/api
+   npm.cmd run db:seed:identity --workspace @umb/api
    ```
+
+## Autenticación (Better Auth)
+
+Identity & Access usa [Better Auth](https://www.better-auth.com) con email y
+contraseña real. La sesión se maneja con una cookie httpOnly emitida por
+`/api/auth/*` (superficie nativa de Better Auth) y consumida por los
+endpoints de contrato `/api/v2/auth/login`, `/api/v2/auth/logout` y
+`/api/v2/auth/me`.
+
+Variables nuevas en `.env`:
+
+- `BETTER_AUTH_SECRET` - secreto de firma (mínimo 32 caracteres).
+- `BETTER_AUTH_URL` - URL base del API (`http://localhost:3001` en local).
+- `WEB_APP_URL` - origen del frontend permitido por CORS/CSRF (`http://localhost:5173` en local).
+
+Cuentas demo creadas por `npm.cmd run db:seed:identity --workspace @umb/api`:
+
+| Rol | Email | Contraseña |
+| --- | --- | --- |
+| Organizador | `organizer@urbanmap.local` | `Organizer#2026` |
+| Moderador | `moderator@urbanmap.local` | `Moderator#2026` |
+| Administrador | `admin@urbanmap.local` | `Admin#2026` |
 
 ## Desarrollo
 
@@ -82,6 +105,7 @@ npm.cmd run build --workspace @umb/web
 
 ## Nota
 
-Identity & Access sigue siendo un scaffold mínimo: no hay autenticación ni
-autorización reales todavía. Auth, analítica, promociones, pagos, upload de
+Identity & Access usa autenticación y autorización reales (Better Auth) con
+los roles `organizer`, `moderator` y `admin`. No implementa OAuth, 2FA, magic
+links ni recuperación de contraseña. Analítica, promociones, pagos, upload de
 imágenes y mapas interactivos de autoría no están implementados.
