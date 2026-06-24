@@ -9,6 +9,7 @@ import {
   validateOrganizerDraft
 } from "../api/organizerDrafts";
 import type { DraftEditorState, DraftMutationResponse, OrganizerDraft } from "../types/organizerDrafts";
+import { StatusBadge } from "../ui/StatusBadge";
 import { WorkspaceShell } from "../workspaces/WorkspaceShell";
 
 const EMPTY_EDITOR: DraftEditorState = {
@@ -68,14 +69,6 @@ function toDateTimeLocalValue(value: string | null): string {
 
   const offsetDate = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
   return offsetDate.toISOString().slice(0, 16);
-}
-
-function statusLabel(value: string | null | undefined): string {
-  if (!value) {
-    return "Sin caso";
-  }
-
-  return value.replace(/_/g, " ");
 }
 
 function readErrorMessage(error: unknown, fallback: string): string {
@@ -272,8 +265,8 @@ export function OrganizerWorkspacePage() {
                 key={draft.draftId}
                 onClick={() => setSelectedDraftId(draft.draftId)}
               >
-                <span className="draft-list__title">{draft.title}</span>
-                <span className="draft-list__meta">{statusLabel(draft.publicationStatus)}</span>
+                <span className="draft-list__title">{draft.title || "Borrador sin titulo"}</span>
+                <StatusBadge value={draft.publicationStatus} />
               </button>
             ))}
           </div>
@@ -287,129 +280,158 @@ export function OrganizerWorkspacePage() {
 
           {selectedDraft ? (
             <form className="workspace-form organizer-form" onSubmit={(event) => event.preventDefault()}>
-              <label className="workspace-field">
-                <span>Titulo</span>
-                <input
-                  value={editor.title}
-                  onChange={(event) => patchEditor({ title: event.target.value })}
-                  placeholder="Nombre del evento"
-                  maxLength={180}
-                />
-              </label>
+              <section className="organizer-form__section">
+                <h3 className="organizer-form__section-title">Informacion basica</h3>
 
-              <label className="workspace-field">
-                <span>Resumen</span>
-                <input
-                  value={editor.summary}
-                  onChange={(event) => patchEditor({ summary: event.target.value })}
-                  placeholder="Resumen corto"
-                  maxLength={280}
-                />
-              </label>
-
-              <label className="workspace-field">
-                <span>Descripcion</span>
-                <textarea
-                  value={editor.description}
-                  onChange={(event) => patchEditor({ description: event.target.value })}
-                  placeholder="Descripcion larga del borrador"
-                  rows={8}
-                />
-              </label>
-
-              <div className="organizer-form__grid">
-                <label className="workspace-field">
-                  <span>Categoria</span>
-                  <select value={editor.categoryId} onChange={(event) => patchEditor({ categoryId: event.target.value })}>
-                    <option value="">Selecciona categoria</option>
-                    {CATEGORY_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="workspace-field">
-                  <span>Zona</span>
-                  <select value={editor.zoneId} onChange={(event) => patchEditor({ zoneId: event.target.value })}>
-                    <option value="">Selecciona zona</option>
-                    {ZONE_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-
-              <div className="organizer-form__grid">
-                <label className="workspace-field">
-                  <span>Lugar</span>
+                <label className="workspace-field" htmlFor="draft-title">
+                  <span>Titulo</span>
                   <input
-                    value={editor.venueName}
-                    onChange={(event) => patchEditor({ venueName: event.target.value })}
-                    placeholder="Nombre del lugar"
+                    id="draft-title"
+                    value={editor.title}
+                    onChange={(event) => patchEditor({ title: event.target.value })}
+                    placeholder="Nombre del evento"
                     maxLength={180}
                   />
                 </label>
 
-                <label className="workspace-field">
-                  <span>Direccion</span>
+                <label className="workspace-field" htmlFor="draft-summary">
+                  <span>Resumen</span>
                   <input
-                    value={editor.address}
-                    onChange={(event) => patchEditor({ address: event.target.value })}
-                    placeholder="Direccion o referencia"
+                    id="draft-summary"
+                    value={editor.summary}
+                    onChange={(event) => patchEditor({ summary: event.target.value })}
+                    placeholder="Resumen corto"
                     maxLength={280}
                   />
                 </label>
-              </div>
 
-              <div className="organizer-form__grid">
-                <label className="workspace-field">
-                  <span>Inicio</span>
-                  <input
-                    type="datetime-local"
-                    value={editor.startsAt}
-                    onChange={(event) => patchEditor({ startsAt: event.target.value })}
+                <label className="workspace-field" htmlFor="draft-description">
+                  <span>Descripcion</span>
+                  <textarea
+                    id="draft-description"
+                    value={editor.description}
+                    onChange={(event) => patchEditor({ description: event.target.value })}
+                    placeholder="Descripcion larga del borrador"
+                    rows={8}
                   />
                 </label>
+              </section>
 
-                <label className="workspace-field">
-                  <span>Fin</span>
-                  <input
-                    type="datetime-local"
-                    value={editor.endsAt}
-                    onChange={(event) => patchEditor({ endsAt: event.target.value })}
-                  />
-                </label>
-              </div>
+              <section className="organizer-form__section">
+                <h3 className="organizer-form__section-title">Categoria y zona</h3>
 
-              <div className="organizer-form__cost">
-                <label className="workspace-field workspace-field--checkbox">
-                  <input
-                    type="checkbox"
-                    checked={editor.isFree}
-                    onChange={(event) =>
-                      patchEditor({
-                        isFree: event.target.checked,
-                        costLabel: event.target.checked ? "Gratis" : editor.costLabel
-                      })
-                    }
-                  />
-                  <span>Evento gratuito</span>
-                </label>
+                <div className="organizer-form__grid">
+                  <label className="workspace-field" htmlFor="draft-category">
+                    <span>Categoria</span>
+                    <select
+                      id="draft-category"
+                      value={editor.categoryId}
+                      onChange={(event) => patchEditor({ categoryId: event.target.value })}
+                    >
+                      <option value="">Selecciona categoria</option>
+                      {CATEGORY_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
 
-                <label className="workspace-field">
-                  <span>Costo</span>
-                  <input
-                    value={editor.costLabel}
-                    onChange={(event) => patchEditor({ costLabel: event.target.value })}
-                    placeholder={editor.isFree ? "Gratis" : "Ej. $25.000"}
-                    maxLength={80}
-                  />
-                </label>
-              </div>
+                  <label className="workspace-field" htmlFor="draft-zone">
+                    <span>Zona</span>
+                    <select id="draft-zone" value={editor.zoneId} onChange={(event) => patchEditor({ zoneId: event.target.value })}>
+                      <option value="">Selecciona zona</option>
+                      {ZONE_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+              </section>
+
+              <section className="organizer-form__section">
+                <h3 className="organizer-form__section-title">Lugar y fecha</h3>
+
+                <div className="organizer-form__grid">
+                  <label className="workspace-field" htmlFor="draft-venue">
+                    <span>Lugar</span>
+                    <input
+                      id="draft-venue"
+                      value={editor.venueName}
+                      onChange={(event) => patchEditor({ venueName: event.target.value })}
+                      placeholder="Nombre del lugar"
+                      maxLength={180}
+                    />
+                  </label>
+
+                  <label className="workspace-field" htmlFor="draft-address">
+                    <span>Direccion</span>
+                    <input
+                      id="draft-address"
+                      value={editor.address}
+                      onChange={(event) => patchEditor({ address: event.target.value })}
+                      placeholder="Direccion o referencia"
+                      maxLength={280}
+                    />
+                  </label>
+                </div>
+
+                <div className="organizer-form__grid">
+                  <label className="workspace-field" htmlFor="draft-starts-at">
+                    <span>Inicio</span>
+                    <input
+                      id="draft-starts-at"
+                      type="datetime-local"
+                      value={editor.startsAt}
+                      onChange={(event) => patchEditor({ startsAt: event.target.value })}
+                    />
+                  </label>
+
+                  <label className="workspace-field" htmlFor="draft-ends-at">
+                    <span>Fin</span>
+                    <input
+                      id="draft-ends-at"
+                      type="datetime-local"
+                      value={editor.endsAt}
+                      onChange={(event) => patchEditor({ endsAt: event.target.value })}
+                    />
+                  </label>
+                </div>
+              </section>
+
+              <section className="organizer-form__section">
+                <h3 className="organizer-form__section-title">Costo</h3>
+
+                <div className="organizer-form__cost">
+                  <label className="workspace-field workspace-field--checkbox" htmlFor="draft-is-free">
+                    <input
+                      id="draft-is-free"
+                      type="checkbox"
+                      checked={editor.isFree}
+                      onChange={(event) =>
+                        patchEditor({
+                          isFree: event.target.checked,
+                          costLabel: event.target.checked ? "Gratis" : editor.costLabel
+                        })
+                      }
+                    />
+                    <span>Evento gratuito</span>
+                  </label>
+
+                  <label className="workspace-field" htmlFor="draft-cost-label">
+                    <span>Costo</span>
+                    <input
+                      id="draft-cost-label"
+                      value={editor.costLabel}
+                      onChange={(event) => patchEditor({ costLabel: event.target.value })}
+                      placeholder={editor.isFree ? "Gratis" : "Ej. $25.000"}
+                      maxLength={80}
+                    />
+                  </label>
+                </div>
+              </section>
 
               <div className="organizer-actions">
                 <button className="workspace-button workspace-button--primary" type="button" onClick={handleSaveDraft} disabled={isMutating}>
@@ -438,7 +460,9 @@ export function OrganizerWorkspacePage() {
             <dl className="draft-status">
               <div>
                 <dt>Publication status</dt>
-                <dd>{statusLabel(selectedDraft.publicationStatus)}</dd>
+                <dd>
+                  <StatusBadge value={selectedDraft.publicationStatus} />
+                </dd>
               </div>
               <div>
                 <dt>Publication case</dt>
@@ -446,7 +470,9 @@ export function OrganizerWorkspacePage() {
               </div>
               <div>
                 <dt>Case status</dt>
-                <dd>{statusLabel(selectedDraft.publicationCaseStatus)}</dd>
+                <dd>
+                  <StatusBadge value={selectedDraft.publicationCaseStatus} fallback="Sin caso" />
+                </dd>
               </div>
             </dl>
           ) : (

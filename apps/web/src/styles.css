@@ -1682,6 +1682,184 @@ button {
   margin-top: 14px;
 }
 
+.moderation-queue__badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.moderation-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(229, 226, 225, 0.9);
+  box-shadow: var(--shadow-sm);
+  width: fit-content;
+}
+
+.moderation-tabs__button {
+  appearance: none;
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+
+.moderation-tabs__button.is-active {
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-strong) 100%);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.moderation-tabs__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.08);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.moderation-tabs__button.is-active .moderation-tabs__count {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.report-signals {
+  display: grid;
+  gap: 10px;
+}
+
+.report-signals h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font: 700 1.05rem/1.2 Montserrat, Inter, system-ui, sans-serif;
+}
+
+.report-signals__list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.report-signals__item {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: var(--surface-muted);
+  border: 1px solid rgba(229, 226, 225, 0.72);
+}
+
+.report-signals__item p {
+  margin: 0;
+  color: var(--text-primary);
+  line-height: 1.45;
+}
+
+.report-signals__item span {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.organizer-form__section {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(247, 248, 250, 0.6);
+  border: 1px solid rgba(229, 226, 225, 0.6);
+}
+
+.organizer-form__section-title {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.status-badge--success {
+  background: rgba(0, 200, 83, 0.12);
+  color: #006e2a;
+  border: 1px solid rgba(0, 200, 83, 0.18);
+}
+
+.status-badge--info {
+  background: rgba(26, 115, 232, 0.12);
+  color: #004493;
+  border: 1px solid rgba(26, 115, 232, 0.16);
+}
+
+.status-badge--warning {
+  background: rgba(255, 179, 71, 0.18);
+  color: #8a4a00;
+  border: 1px solid rgba(255, 179, 71, 0.22);
+}
+
+.status-badge--danger {
+  background: rgba(174, 50, 0, 0.1);
+  color: #8d1f00;
+  border: 1px solid rgba(174, 50, 0, 0.16);
+}
+
+.status-badge--neutral {
+  background: var(--surface-soft);
+  color: var(--text-secondary);
+  border: 1px solid rgba(229, 226, 225, 0.9);
+}
+
+.workspace-button--danger {
+  color: #8d1f00;
+  background: rgba(174, 50, 0, 0.1);
+}
+
+.workspace-button--danger:hover:not(:disabled) {
+  background: rgba(174, 50, 0, 0.16);
+}
+
+.workspace-button:focus-visible,
+.workspace-field input:focus-visible,
+.workspace-field select:focus-visible,
+.workspace-field textarea:focus-visible,
+.draft-list__item:focus-visible,
+.moderation-queue__item:focus-visible,
+.moderation-tabs__button:focus-visible,
+.workspace-shell__nav-link:focus-visible {
+  outline: 3px solid rgba(255, 90, 31, 0.32);
+  outline-offset: 2px;
+}
+
 .loading-shell {
   display: block;
   border-radius: 999px;
@@ -1992,6 +2170,16 @@ button {
 
   .organizer-actions .workspace-button {
     width: 100%;
+  }
+
+  .moderation-tabs {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .moderation-tabs__button {
+    flex: 1;
+    justify-content: center;
   }
 
   .empty-state-illustration,
