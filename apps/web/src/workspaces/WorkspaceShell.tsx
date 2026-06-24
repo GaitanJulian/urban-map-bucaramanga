@@ -1,6 +1,7 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type { ActorRole } from "@umb/shared";
+import { useAuth } from "../auth/AuthContext";
 
 interface WorkspaceShellProps {
   title: string;
@@ -16,6 +17,14 @@ const ROLE_LABELS: Record<ActorRole, string> = {
 };
 
 export function WorkspaceShell({ title, description, role, children }: WorkspaceShellProps) {
+  const { status, actor, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
+
   return (
     <div className="workspace-shell">
       <header className="workspace-shell__header">
@@ -29,9 +38,21 @@ export function WorkspaceShell({ title, description, role, children }: Workspace
           <Link to="/" className="workspace-shell__nav-link">
             Descubrimiento
           </Link>
-          <Link to="/login" className="workspace-shell__nav-link">
-            Ingreso
-          </Link>
+
+          {status === "authenticated" && actor ? (
+            <>
+              <span className="workspace-shell__nav-link" aria-label="Cuenta actual">
+                {actor.displayName} ({ROLE_LABELS[actor.activeRole]})
+              </span>
+              <button type="button" className="workspace-shell__nav-link workspace-shell__logout" onClick={handleLogout}>
+                Cerrar sesión
+              </button>
+            </>
+          ) : (
+            <Link to="/login" className="workspace-shell__nav-link">
+              Ingreso
+            </Link>
+          )}
         </nav>
       </header>
 

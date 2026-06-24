@@ -44,6 +44,7 @@ function getApiV2BaseUrl(): string {
 async function requestJson<T>(path: string, init: RequestInit = {}): Promise<T> {
   const response = await fetch(`${getApiV2BaseUrl()}${path}`, {
     ...init,
+    credentials: "include",
     headers: {
       Accept: "application/json",
       ...(init.body ? { "Content-Type": "application/json" } : {}),

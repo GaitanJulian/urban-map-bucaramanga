@@ -1270,6 +1270,12 @@ button {
   font-weight: 700;
 }
 
+.workspace-shell__logout {
+  border: none;
+  cursor: pointer;
+  font: inherit;
+}
+
 .workspace-shell__content {
   min-height: calc(100dvh - 180px);
 }
