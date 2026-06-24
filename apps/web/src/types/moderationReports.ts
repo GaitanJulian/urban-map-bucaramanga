@@ -14,6 +14,8 @@ export interface ModerationReport {
   reason: string;
   decisionReason?: string | null;
   resolvedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
   signals: ReportSignal[];
 }
 

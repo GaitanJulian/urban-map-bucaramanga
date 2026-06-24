@@ -88,11 +88,7 @@ export function getModerationReport(reportId: string): Promise<ModerationReport>
   return requestJson<ModerationReport>(`/moderation/reports/${encodeURIComponent(reportId)}`);
 }
 
-export function actOnModerationReport(
-  reportId: string,
-  action: ReportAction,
-  reason: string
-): Promise<ReportActionResponse> {
+export function actOnModerationReport(reportId: string, action: ReportAction, reason: string): Promise<ReportActionResponse> {
   return requestJson<ReportActionResponse>(`/moderation/reports/${encodeURIComponent(reportId)}/${action}`, {
     method: "POST",
     body: JSON.stringify({ reason })

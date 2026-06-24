@@ -38,6 +38,10 @@ function draftTitle(draft: ModerationDraftSnapshot | null | undefined): string {
   return draft?.title?.trim() || "Borrador sin titulo";
 }
 
+function reportTitle(report: ModerationReport): string {
+  return report.targetEventTitle?.trim() || report.targetEventId;
+}
+
 export function ModerationWorkspacePage() {
   const [activeTab, setActiveTab] = useState<ModerationTab>("cases");
 
@@ -232,7 +236,8 @@ export function ModerationWorkspacePage() {
       const response = await actOnModerationReport(selectedReportId, action, reason);
       setReportNotice(`Reporte actualizado: ${response.status.replace(/_/g, " ")}.`);
       setReportReason("");
-      await loadReports(null);
+      await loadReports(selectedReportId);
+      await loadReportDetail(selectedReportId);
     } catch (error) {
       setReportErrorMessage(readErrorMessage(error, "No pudimos actualizar el reporte."));
     } finally {
@@ -477,8 +482,8 @@ export function ModerationWorkspacePage() {
         >
           <aside className="workspace-card moderation-workspace__queue">
             <div className="workspace-card__copy">
-              <h2>Reportes protegidos</h2>
-              <p>Reportes internos sobre contenido publicado.</p>
+              <h2>Reportes</h2>
+              <p>Reportes protegidos contra contenido visible.</p>
             </div>
 
             <button
@@ -494,7 +499,7 @@ export function ModerationWorkspacePage() {
               {isReportsLoading ? <div className="workspace-placeholder">Cargando reportes...</div> : null}
 
               {!isReportsLoading && reports.length === 0 ? (
-                <div className="workspace-placeholder">No hay reportes abiertos.</div>
+                <div className="workspace-placeholder">No hay reportes registrados.</div>
               ) : null}
 
               {reports.map((report) => (
@@ -504,7 +509,7 @@ export function ModerationWorkspacePage() {
                   key={report.reportId}
                   onClick={() => setSelectedReportId(report.reportId)}
                 >
-                  <span className="moderation-queue__title">{report.targetEventTitle?.trim() || "Evento sin titulo"}</span>
+                  <span className="moderation-queue__title">{reportTitle(report)}</span>
                   <span className="moderation-queue__badges">
                     <StatusBadge value={report.status} />
                     <StatusBadge value={report.triagePriority} />
@@ -517,7 +522,7 @@ export function ModerationWorkspacePage() {
           <article className="workspace-card moderation-workspace__detail">
             <div className="workspace-card__copy">
               <h2>Detalle del reporte</h2>
-              <p>Motivo, signals y estado de resolucion.</p>
+              <p>Senales, objetivo y estado operacional.</p>
             </div>
 
             {isReportDetailLoading ? <div className="workspace-placeholder">Cargando detalle...</div> : null}
@@ -526,8 +531,12 @@ export function ModerationWorkspacePage() {
               <div className="moderation-detail">
                 <dl className="draft-status moderation-detail__meta">
                   <div>
-                    <dt>Evento</dt>
-                    <dd>{reportDetail.targetEventTitle?.trim() || "Evento sin titulo"}</dd>
+                    <dt>Report case</dt>
+                    <dd>{reportDetail.reportId}</dd>
+                  </div>
+                  <div>
+                    <dt>Target event</dt>
+                    <dd>{reportDetail.targetEventId}</dd>
                   </div>
                   <div>
                     <dt>Status</dt>
@@ -536,32 +545,38 @@ export function ModerationWorkspacePage() {
                     </dd>
                   </div>
                   <div>
-                    <dt>Prioridad</dt>
+                    <dt>Priority</dt>
                     <dd>
                       <StatusBadge value={reportDetail.triagePriority} />
                     </dd>
                   </div>
                   <div>
-                    <dt>Resuelto</dt>
-                    <dd>{formatDate(reportDetail.resolvedAt)}</dd>
+                    <dt>Created</dt>
+                    <dd>{formatDate(reportDetail.createdAt)}</dd>
+                  </div>
+                  <div>
+                    <dt>Updated</dt>
+                    <dd>{formatDate(reportDetail.updatedAt)}</dd>
                   </div>
                 </dl>
 
                 <section className="moderation-event-summary">
-                  <h3>{reportDetail.reason}</h3>
-                  <p>{reportDetail.decisionReason || "Sin decision registrada"}</p>
+                  <h3>{reportTitle(reportDetail)}</h3>
+                  <p>{reportDetail.reason}</p>
+                  <p>{reportDetail.decisionReason ?? "Sin decision registrada."}</p>
                 </section>
 
                 <section className="report-signals">
                   <h3>Signals</h3>
                   {reportDetail.signals.length === 0 ? (
-                    <p className="workspace-placeholder">Sin signals registrados.</p>
+                    <p className="workspace-placeholder">Sin senales registradas.</p>
                   ) : (
                     <ul className="report-signals__list">
                       {reportDetail.signals.map((signal) => (
                         <li key={signal.signalId} className="report-signals__item">
                           <p>{signal.description}</p>
                           <span>{formatDate(signal.createdAt)}</span>
+                          {signal.evidenceRef ? <span>{signal.evidenceRef}</span> : null}
                         </li>
                       ))}
                     </ul>
@@ -578,7 +593,7 @@ export function ModerationWorkspacePage() {
           <aside className="workspace-card moderation-workspace__decision">
             <div className="workspace-card__copy">
               <h2>Accion</h2>
-              <p>Triage, resuelve, descarta, oculta o escala el reporte.</p>
+              <p>Haz triage, resuelve, descarta, oculta o escala.</p>
             </div>
 
             <label className="workspace-field moderation-reason" htmlFor="report-action-reason">
@@ -623,7 +638,7 @@ export function ModerationWorkspacePage() {
                 onClick={() => handleReportAction("hide")}
                 disabled={!reportDetail || isReportMutating}
               >
-                Ocultar
+                Ocultar contenido
               </button>
               <button
                 className="workspace-button workspace-button--secondary"

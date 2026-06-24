@@ -147,6 +147,12 @@ export class ReportResponseDto {
   @ApiPropertyOptional({ example: "2026-06-13T12:00:00.000Z", nullable: true })
   resolvedAt?: string | null;
 
+  @ApiProperty({ example: "2026-06-13T12:00:00.000Z" })
+  createdAt!: string;
+
+  @ApiProperty({ example: "2026-06-13T12:00:00.000Z" })
+  updatedAt!: string;
+
   @ApiProperty({ type: [ReportSignalResponseDto] })
   signals!: ReportSignalResponseDto[];
 }
