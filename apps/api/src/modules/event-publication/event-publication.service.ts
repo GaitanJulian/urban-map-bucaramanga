@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { randomUUID } from "node:crypto";
 import { In, Repository } from "typeorm";
@@ -36,10 +36,10 @@ export class EventPublicationService {
     private readonly publicationCaseRepository: Repository<PublicationCaseEntity>
   ) {}
 
-  async createDraft(body: CreateDraftRequestDto): Promise<DraftResponseDto> {
+  async createDraft(body: CreateDraftRequestDto, actorId: string): Promise<DraftResponseDto> {
     const draft = this.draftRepository.create({
       id: this.createScopedId("draft"),
-      organizerProfileId: this.normalizeText(body.organizerProfileId),
+      organizerProfileId: actorId,
       title: this.normalizeText(body.title) ?? "Borrador de Release 2",
       summary: this.normalizeText(body.summary),
       description: this.normalizeText(body.description),
@@ -60,8 +60,9 @@ export class EventPublicationService {
     return this.toDraftResponse(draft, null);
   }
 
-  async listDrafts(): Promise<DraftResponseDto[]> {
+  async listDrafts(actorId: string): Promise<DraftResponseDto[]> {
     const drafts = await this.draftRepository.find({
+      where: { organizerProfileId: actorId },
       order: {
         updatedAt: "DESC"
       }
@@ -71,14 +72,14 @@ export class EventPublicationService {
     return drafts.map((draft) => this.toDraftResponse(draft, latestPublicationCases.get(draft.id) ?? null));
   }
 
-  async getDraft(draftId: string): Promise<DraftResponseDto> {
-    const draft = await this.findDraftOrFail(draftId);
+  async getDraft(draftId: string, actorId: string): Promise<DraftResponseDto> {
+    const draft = await this.findDraftOrFail(draftId, actorId);
     const latestPublicationCase = await this.findLatestPublicationCase(draftId);
     return this.toDraftResponse(draft, latestPublicationCase);
   }
 
-  async updateDraft(draftId: string, body: UpdateDraftRequestDto): Promise<DraftMutationResponseDto> {
-    const draft = await this.findDraftOrFail(draftId);
+  async updateDraft(draftId: string, body: UpdateDraftRequestDto, actorId: string): Promise<DraftMutationResponseDto> {
+    const draft = await this.findDraftOrFail(draftId, actorId);
 
     if (body.title !== undefined) {
       draft.title = this.normalizeText(body.title) ?? draft.title;
@@ -121,8 +122,8 @@ export class EventPublicationService {
     return this.toMutationResponse(savedDraft, publicationCase, false);
   }
 
-  async saveDraft(draftId: string): Promise<DraftMutationResponseDto> {
-    const draft = await this.findDraftOrFail(draftId);
+  async saveDraft(draftId: string, actorId: string): Promise<DraftMutationResponseDto> {
+    const draft = await this.findDraftOrFail(draftId, actorId);
     const validation = this.validateDraftState(draft);
 
     const latestPublicationCase = await this.findLatestPublicationCase(draft.id);
@@ -139,8 +140,8 @@ export class EventPublicationService {
     return this.toMutationResponse(savedDraft, publicationCase ?? latestPublicationCase, true);
   }
 
-  async validateDraft(draftId: string): Promise<DraftValidationResponseDto> {
-    const draft = await this.findDraftOrFail(draftId);
+  async validateDraft(draftId: string, actorId: string): Promise<DraftValidationResponseDto> {
+    const draft = await this.findDraftOrFail(draftId, actorId);
     const validation = this.validateDraftState(draft);
     return {
       draftId: draft.id,
@@ -149,8 +150,8 @@ export class EventPublicationService {
     };
   }
 
-  async submitDraft(draftId: string): Promise<DraftMutationResponseDto> {
-    const draft = await this.findDraftOrFail(draftId);
+  async submitDraft(draftId: string, actorId: string): Promise<DraftMutationResponseDto> {
+    const draft = await this.findDraftOrFail(draftId, actorId);
     const validation = this.validateDraftState(draft);
 
     if (!validation.isValid) {
@@ -181,8 +182,8 @@ export class EventPublicationService {
     return this.toMutationResponse(savedDraft, publicationCase, false);
   }
 
-  async cancelDraft(draftId: string): Promise<DraftMutationResponseDto> {
-    const draft = await this.findDraftOrFail(draftId);
+  async cancelDraft(draftId: string, actorId: string): Promise<DraftMutationResponseDto> {
+    const draft = await this.findDraftOrFail(draftId, actorId);
     draft.publicationStatus = "cancelled";
     draft.updatedAt = new Date();
 
@@ -266,10 +267,14 @@ export class EventPublicationService {
     return publicationCase;
   }
 
-  private async findDraftOrFail(draftId: string): Promise<EventDraftEntity> {
+  private async findDraftOrFail(draftId: string, actorId: string): Promise<EventDraftEntity> {
     const draft = await this.draftRepository.findOne({ where: { id: draftId } });
     if (!draft) {
       throw new NotFoundException(`Draft ${draftId} not found.`);
+    }
+
+    if (draft.organizerProfileId !== actorId) {
+      throw new ForbiddenException("Este borrador pertenece a otro organizador.");
     }
 
     return draft;

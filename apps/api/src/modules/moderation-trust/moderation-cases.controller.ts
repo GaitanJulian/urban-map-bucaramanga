@@ -1,5 +1,8 @@
-import { Body, Controller, Get, Param, Post, Version } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UseGuards, Version } from "@nestjs/common";
 import { ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { AuthGuard } from "../identity-access/guards/auth.guard.js";
+import { RolesGuard } from "../identity-access/guards/roles.guard.js";
+import { Roles } from "../identity-access/guards/roles.decorator.js";
 import { ModerationTrustService } from "./moderation-trust.service.js";
 import {
   ModerationCaseDecisionResponseDto,
@@ -8,6 +11,8 @@ import {
 } from "./dto/moderation-trust.dto.js";
 
 @ApiTags("Moderation Trust")
+@UseGuards(AuthGuard, RolesGuard)
+@Roles("moderator")
 @Controller("moderation/cases")
 export class ModerationCasesController {
   constructor(private readonly moderationTrustService: ModerationTrustService) {}

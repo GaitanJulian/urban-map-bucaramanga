@@ -5,8 +5,8 @@ export class LoginRequestDto {
   @ApiProperty({ example: "organizer@urbanmap.local" })
   email!: string;
 
-  @ApiPropertyOptional({ example: "organizer", enum: ["organizer", "moderator", "admin"] })
-  role?: ActorRole;
+  @ApiProperty({ example: "Organizer#2026" })
+  password!: string;
 }
 
 export class ActorResponseDto {
@@ -23,13 +23,6 @@ export class ActorResponseDto {
   activeRole!: ActorRole;
 }
 
-export class LoginResponseDto {
-  @ApiProperty({ example: "scaffold-token-for-organizer@urbanmap.local" })
-  accessToken!: string;
-
-  @ApiProperty({ type: ActorResponseDto })
-  actor!: ActorResponseDto;
-}
 
 export class BootstrapOrganizerRequestDto {
   @ApiProperty({ example: "Fundacion Cultural Bucaramanga" })

@@ -1,5 +1,8 @@
-import { Body, Controller, Get, Param, Post, Version } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UseGuards, Version } from "@nestjs/common";
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { AuthGuard } from "../identity-access/guards/auth.guard.js";
+import { RolesGuard } from "../identity-access/guards/roles.guard.js";
+import { Roles } from "../identity-access/guards/roles.decorator.js";
 import { ModerationTrustService } from "./moderation-trust.service.js";
 import {
   CreateReportRequestDto,
@@ -9,6 +12,8 @@ import {
 } from "./dto/moderation-trust.dto.js";
 
 @ApiTags("Moderation Trust")
+@UseGuards(AuthGuard, RolesGuard)
+@Roles("moderator")
 @Controller("moderation/reports")
 export class ModerationReportsController {
   constructor(private readonly moderationTrustService: ModerationTrustService) {}

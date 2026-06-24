@@ -1,26 +1,16 @@
 import { Injectable } from "@nestjs/common";
 import type { ActorRole } from "@umb/shared";
+import type { AuthUser } from "./better-auth.js";
+import type { ActorResponseDto } from "./dto/identity-access.dto.js";
 
 @Injectable()
 export class IdentityAccessService {
-  login(email: string, role: ActorRole = "organizer") {
+  toActorResponse(user: AuthUser): ActorResponseDto {
     return {
-      accessToken: `scaffold-token-for-${email}`,
-      actor: {
-        id: "actor_scaffold",
-        displayName: "Scaffold Actor",
-        email,
-        activeRole: role
-      }
-    };
-  }
-
-  currentActor() {
-    return {
-      id: "actor_scaffold",
-      displayName: "Scaffold Actor",
-      email: "scaffold@urbanmap.local",
-      activeRole: "organizer" as const
+      id: user.id,
+      displayName: user.name,
+      email: user.email,
+      activeRole: user.role as ActorRole
     };
   }
 

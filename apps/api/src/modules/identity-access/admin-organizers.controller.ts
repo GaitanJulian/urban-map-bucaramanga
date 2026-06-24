@@ -1,5 +1,8 @@
-import { Body, Controller, Get, Param, Patch, Post, Version } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Post, UseGuards, Version } from "@nestjs/common";
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { AuthGuard } from "./guards/auth.guard.js";
+import { RolesGuard } from "./guards/roles.guard.js";
+import { Roles } from "./guards/roles.decorator.js";
 import { IdentityAccessService } from "./identity-access.service.js";
 import {
   BootstrapOrganizerRequestDto,
@@ -8,6 +11,8 @@ import {
 } from "./dto/identity-access.dto.js";
 
 @ApiTags("Identity Access")
+@UseGuards(AuthGuard, RolesGuard)
+@Roles("admin")
 @Controller("admin/organizers")
 export class AdminOrganizersController {
   constructor(private readonly identityAccessService: IdentityAccessService) {}
