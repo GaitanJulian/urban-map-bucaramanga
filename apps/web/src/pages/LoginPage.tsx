@@ -12,7 +12,7 @@ interface LoginLocationState {
 const WORKSPACE_BY_ROLE: Record<ActorRole, string> = {
   organizer: "/organizer",
   moderator: "/moderation",
-  admin: "/"
+  admin: "/admin"
 };
 
 function readContextualMessage(state: LoginLocationState | null): string | null {

@@ -6,7 +6,7 @@ import { WorkspaceShell } from "../workspaces/WorkspaceShell";
 const WORKSPACE_BY_ROLE = {
     organizer: "/organizer",
     moderator: "/moderation",
-    admin: "/"
+    admin: "/admin"
 };
 function readContextualMessage(state) {
     if (!state?.reason) {

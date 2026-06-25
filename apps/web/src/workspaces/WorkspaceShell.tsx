@@ -41,6 +41,11 @@ export function WorkspaceShell({ title, description, role, children }: Workspace
 
           {status === "authenticated" && actor ? (
             <>
+              {actor.activeRole === "admin" ? (
+                <Link to="/admin" className="workspace-shell__nav-link">
+                  Panel admin
+                </Link>
+              ) : null}
               <span className="workspace-shell__nav-link" aria-label="Cuenta actual">
                 {actor.displayName} ({ROLE_LABELS[actor.activeRole]})
               </span>

@@ -5,6 +5,7 @@ import { DiscoveryPage } from "./pages/DiscoveryPage";
 import { LoginPage } from "./pages/LoginPage";
 import { OrganizerWorkspacePage } from "./pages/OrganizerWorkspacePage";
 import { ModerationWorkspacePage } from "./pages/ModerationWorkspacePage";
+import { AdminWorkspacePage } from "./pages/AdminWorkspacePage";
 
 export default function App() {
   return (
@@ -25,6 +26,14 @@ export default function App() {
           element={
             <ProtectedRoute role="moderator">
               <ModerationWorkspacePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminWorkspacePage />
             </ProtectedRoute>
           }
         />
