@@ -82,7 +82,7 @@ export function AdminWorkspacePage() {
         <article className="workspace-card" aria-label="Accesos rápidos">
           <div className="workspace-card__copy">
             <h2>Accesos rápidos</h2>
-            <p>Atajos a los workspaces operativos de Release 2.</p>
+            <p>Atajos a los workspaces operativos de la plataforma.</p>
           </div>
 
           <div className="draft-list">

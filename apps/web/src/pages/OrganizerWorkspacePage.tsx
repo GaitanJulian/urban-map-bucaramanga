@@ -239,7 +239,7 @@ export function OrganizerWorkspacePage() {
   return (
     <WorkspaceShell
       title="Workspace de Organizador"
-      description="Borradores, validación mínima y envío a revisión conectados al backend v2."
+      description="Crea, valida y envía tus eventos a revisión antes de publicarlos."
       role="organizer"
     >
       <section className="organizer-workspace">

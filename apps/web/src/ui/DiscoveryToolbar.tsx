@@ -8,8 +8,8 @@ export function DiscoveryToolbar() {
           ⌖
         </span>
         <div className="brand-copy">
-          <h1>Mapa de Eventos Bucaramanga</h1>
-          <p>Descubrimiento público Release 1</p>
+          <h1>Urban Map Bucaramanga</h1>
+          <p>Descubre eventos, cultura y experiencias locales</p>
         </div>
       </div>
 

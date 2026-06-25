@@ -55,7 +55,7 @@ export function LoginPage() {
 
   return (
     <WorkspaceShell
-      title="Acceso Release 2"
+      title="Acceso a tu cuenta"
       description="Inicia sesión con tu cuenta de organizador, moderador o administrador."
       role="admin"
     >

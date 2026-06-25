@@ -252,7 +252,7 @@ export function ModerationWorkspacePage() {
   return (
     <WorkspaceShell
       title="Workspace de Moderación"
-      description="Cola de revisión y reportes conectados al backend v2 para decisiones de publicación y confianza."
+      description="Cola de revisión y reportes para decisiones de publicación y confianza."
       role="moderator"
     >
       <div className="moderation-tabs" role="tablist" aria-label="Secciones de moderación">

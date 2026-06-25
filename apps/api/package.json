@@ -10,6 +10,7 @@
     "db:migrate": "tsx src/database/run-migrations.ts",
     "db:seed:release1": "tsx src/database/seed-release1.ts",
     "db:seed:identity": "tsx src/database/seed-identity-access.ts",
+    "db:seed:demo": "tsx src/database/seed-demo.ts",
     "test": "echo \"No tests yet\"",
     "lint": "echo \"No lint configured yet\""
   },
