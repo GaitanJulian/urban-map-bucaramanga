@@ -20,15 +20,15 @@ const DEFAULT_FILTERS = {
     nearLng: "",
     radiusKm: ""
 };
-const CATEGORY_OPTIONS = [
-    { value: "cat_music", label: "Música" },
-    { value: "cat_culture", label: "Cultura" },
-    { value: "cat_food", label: "Gastronomía" }
-];
-const ZONE_OPTIONS = [
-    { value: "zone_cabecera", label: "Cabecera del Llano" },
-    { value: "zone_centro", label: "Centro" }
-];
+const CATALOG_PAGE_SIZE = 200;
+function collectOptions(events, pick) {
+    const byId = new Map();
+    for (const event of events) {
+        const entity = pick(event);
+        byId.set(entity.id, entity.name);
+    }
+    return Array.from(byId, ([value, label]) => ({ value, label })).sort((a, b) => a.label.localeCompare(b.label, "es"));
+}
 function buildQuery(filters) {
     const query = {
         page: 1,
@@ -81,6 +81,7 @@ export function DiscoveryPage() {
     const [filters, setFilters] = useState(DEFAULT_FILTERS);
     const [draftSearch, setDraftSearch] = useState(DEFAULT_FILTERS.q);
     const [reloadToken, setReloadToken] = useState(0);
+    const [catalogEvents, setCatalogEvents] = useState([]);
     const selectedEvent = useMemo(() => events.find((event) => event.id === selectedEventId) ?? null, [events, selectedEventId]);
     useEffect(() => {
         const timeoutId = window.setTimeout(() => {
@@ -90,14 +91,32 @@ export function DiscoveryPage() {
     }, [draftSearch]);
     const requestQuery = useMemo(() => buildQuery(filters), [filters]);
     const requestQueryKey = useMemo(() => JSON.stringify(requestQuery), [requestQuery]);
-    const categoryLabels = useMemo(() => CATEGORY_OPTIONS.reduce((accumulator, option) => {
+    const categoryOptions = useMemo(() => collectOptions(catalogEvents, (event) => event.category), [catalogEvents]);
+    const zoneOptions = useMemo(() => collectOptions(catalogEvents, (event) => event.zone), [catalogEvents]);
+    const categoryLabels = useMemo(() => categoryOptions.reduce((accumulator, option) => {
         accumulator[option.value] = option.label;
         return accumulator;
-    }, {}), []);
-    const zoneLabels = useMemo(() => ZONE_OPTIONS.reduce((accumulator, option) => {
+    }, {}), [categoryOptions]);
+    const zoneLabels = useMemo(() => zoneOptions.reduce((accumulator, option) => {
         accumulator[option.value] = option.label;
         return accumulator;
-    }, {}), []);
+    }, {}), [zoneOptions]);
+    useEffect(() => {
+        const controller = new AbortController();
+        const loadCatalog = async () => {
+            try {
+                const response = await fetchDiscoveryEvents({ pageSize: CATALOG_PAGE_SIZE }, controller.signal);
+                if (!controller.signal.aborted) {
+                    setCatalogEvents(response.items);
+                }
+            }
+            catch {
+                // El catálogo de filtros es un realce; si falla, los selects quedan en "Todas".
+            }
+        };
+        void loadCatalog();
+        return () => controller.abort();
+    }, []);
     useEffect(() => {
         if (selectedEventId === null) {
             return;
@@ -161,6 +180,6 @@ export function DiscoveryPage() {
     return (_jsxs("main", { className: "discovery-shell", children: [_jsx(DiscoveryToolbar, {}), _jsxs("section", { className: "discovery-shell__controls", children: [_jsxs("div", { className: "discovery-shell__controls-row discovery-shell__controls-row--primary", children: [_jsx(DiscoverySearchBar, { value: draftSearch, onChange: setDraftSearch, onClear: () => {
                                     setDraftSearch("");
                                     patchFilters({ q: "" });
-                                } }), _jsx(ViewToggle, { value: view, onChange: setView })] }), _jsx(ActiveFilterChips, { filters: filters, categoryLabels: categoryLabels, zoneLabels: zoneLabels, onPatch: patchFilters, onClearAll: clearAllFilters }), _jsx(DiscoveryFilterBar, { filters: filters, categoryOptions: CATEGORY_OPTIONS, zoneOptions: ZONE_OPTIONS, onPatch: patchFilters })] }), _jsx(DiscoveryLayout, { events: events, pagination: pagination, appliedFilters: appliedFilters, status: status, errorMessage: errorMessage, onRetry: () => setReloadToken((value) => value + 1), view: view, selectedEventId: selectedEventId, selectedEvent: selectedEvent, onSelectEvent: setSelectedEventId })] }));
+                                } }), _jsx(ViewToggle, { value: view, onChange: setView })] }), _jsx(ActiveFilterChips, { filters: filters, categoryLabels: categoryLabels, zoneLabels: zoneLabels, onPatch: patchFilters, onClearAll: clearAllFilters }), _jsx(DiscoveryFilterBar, { filters: filters, categoryOptions: categoryOptions, zoneOptions: zoneOptions, onPatch: patchFilters })] }), _jsx(DiscoveryLayout, { events: events, pagination: pagination, appliedFilters: appliedFilters, status: status, errorMessage: errorMessage, onRetry: () => setReloadToken((value) => value + 1), view: view, selectedEventId: selectedEventId, selectedEvent: selectedEvent, onSelectEvent: setSelectedEventId })] }));
 }
 //# sourceMappingURL=DiscoveryPage.js.map

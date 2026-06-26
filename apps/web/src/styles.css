@@ -697,6 +697,8 @@ button {
   flex: 1 1 auto;
   min-height: 0;
   display: grid;
+  grid-auto-rows: max-content;
+  align-items: start;
   gap: 20px;
   overflow: auto;
   padding-right: 8px;
@@ -704,6 +706,9 @@ button {
 }
 
 .event-card {
+  display: block;
+  width: 100%;
+  height: auto;
   overflow: hidden;
   border-radius: 24px;
   background: var(--surface-elevated);

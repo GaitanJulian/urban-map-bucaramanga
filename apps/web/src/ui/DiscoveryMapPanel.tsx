@@ -130,7 +130,7 @@ export function DiscoveryMapPanel({
           zoom={BUCARAMANGA_ZOOM}
           zoomControl
           preferCanvas
-          scrollWheelZoom={false}
+          scrollWheelZoom
           className="discovery-map-panel__map"
         >
           <MapSynchronizer events={events} selectedEventId={selectedEventId} isVisible={isVisible} />

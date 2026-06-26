@@ -31,16 +31,23 @@ const DEFAULT_FILTERS: DiscoveryFiltersState = {
   radiusKm: ""
 };
 
-const CATEGORY_OPTIONS: DiscoverySelectOption[] = [
-  { value: "cat_music", label: "Música" },
-  { value: "cat_culture", label: "Cultura" },
-  { value: "cat_food", label: "Gastronomía" }
-];
+const CATALOG_PAGE_SIZE = 200;
 
-const ZONE_OPTIONS: DiscoverySelectOption[] = [
-  { value: "zone_cabecera", label: "Cabecera del Llano" },
-  { value: "zone_centro", label: "Centro" }
-];
+function collectOptions(
+  events: PublicEvent[],
+  pick: (event: PublicEvent) => { id: string; name: string }
+): DiscoverySelectOption[] {
+  const byId = new Map<string, string>();
+
+  for (const event of events) {
+    const entity = pick(event);
+    byId.set(entity.id, entity.name);
+  }
+
+  return Array.from(byId, ([value, label]) => ({ value, label })).sort((a, b) =>
+    a.label.localeCompare(b.label, "es")
+  );
+}
 
 function buildQuery(filters: DiscoveryFiltersState): EventDiscoveryQuery {
   const query: EventDiscoveryQuery = {
@@ -104,6 +111,7 @@ export function DiscoveryPage() {
   const [filters, setFilters] = useState<DiscoveryFiltersState>(DEFAULT_FILTERS);
   const [draftSearch, setDraftSearch] = useState(DEFAULT_FILTERS.q);
   const [reloadToken, setReloadToken] = useState(0);
+  const [catalogEvents, setCatalogEvents] = useState<PublicEvent[]>([]);
   const selectedEvent = useMemo(
     () => events.find((event) => event.id === selectedEventId) ?? null,
     [events, selectedEventId]
@@ -119,22 +127,48 @@ export function DiscoveryPage() {
 
   const requestQuery = useMemo(() => buildQuery(filters), [filters]);
   const requestQueryKey = useMemo(() => JSON.stringify(requestQuery), [requestQuery]);
+
+  const categoryOptions = useMemo(
+    () => collectOptions(catalogEvents, (event) => event.category),
+    [catalogEvents]
+  );
+  const zoneOptions = useMemo(() => collectOptions(catalogEvents, (event) => event.zone), [catalogEvents]);
   const categoryLabels = useMemo(
     () =>
-      CATEGORY_OPTIONS.reduce<Record<string, string>>((accumulator, option) => {
+      categoryOptions.reduce<Record<string, string>>((accumulator, option) => {
         accumulator[option.value] = option.label;
         return accumulator;
       }, {}),
-    []
+    [categoryOptions]
   );
   const zoneLabels = useMemo(
     () =>
-      ZONE_OPTIONS.reduce<Record<string, string>>((accumulator, option) => {
+      zoneOptions.reduce<Record<string, string>>((accumulator, option) => {
         accumulator[option.value] = option.label;
         return accumulator;
       }, {}),
-    []
+    [zoneOptions]
   );
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadCatalog = async () => {
+      try {
+        const response = await fetchDiscoveryEvents({ pageSize: CATALOG_PAGE_SIZE }, controller.signal);
+
+        if (!controller.signal.aborted) {
+          setCatalogEvents(response.items);
+        }
+      } catch {
+        // El catálogo de filtros es un realce; si falla, los selects quedan en "Todas".
+      }
+    };
+
+    void loadCatalog();
+
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     if (selectedEventId === null) {
@@ -240,8 +274,8 @@ export function DiscoveryPage() {
 
         <DiscoveryFilterBar
           filters={filters}
-          categoryOptions={CATEGORY_OPTIONS}
-          zoneOptions={ZONE_OPTIONS}
+          categoryOptions={categoryOptions}
+          zoneOptions={zoneOptions}
           onPatch={patchFilters}
         />
       </section>
