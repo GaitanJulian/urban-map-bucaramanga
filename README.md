@@ -65,8 +65,6 @@ Estructura del monorepo:
 - `apps/web` — interfaz pública de descubrimiento y workspaces de
   organizador, moderación y administración.
 - `packages/shared` — tipos y utilidades compartidas mínimas.
-- `docs` — especificaciones funcionales, de arquitectura y evidencia de
-  validación por slice.
 
 ## Releases implementados
 
@@ -183,17 +181,6 @@ y `demo`):
    el evento oculto desaparece de discovery.
 5. **Panel admin mínimo** (`/admin`, sesión de administrador): ver los
    organizadores curados y acceder rápidamente a los demás workspaces.
-
-## Documentación adicional
-
-- `docs/DEMO-READY-CHECKLIST.md` — flujos de demo principales y su
-  validación.
-- `docs/release-2/implementation/DEMO-DATA-AND-BRANDING.md` — seed demo y
-  pulido de marca/copy.
-- `CLAUDE-HANDOFF.md` — contexto operativo completo del proyecto (estado
-  funcional, arquitectura, limitaciones conocidas).
-- `docs/release-2/` — especificaciones y evidencia de implementación de
-  Release 2.
 
 ## Notas de despliegue pendiente
 

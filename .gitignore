@@ -8,3 +8,7 @@ coverage
 apps/api/.env
 apps/web/.env
 package-lock.json
+
+# Private agent documentation stays local; publish only the root README.
+*.md
+!/README.md
