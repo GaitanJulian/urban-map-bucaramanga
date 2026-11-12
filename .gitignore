@@ -12,3 +12,6 @@ package-lock.json
 # Private agent documentation stays local; publish only the root README.
 *.md
 !/README.md
+
+# Local design references
+/docs/frontend/design/
